@@ -59,15 +59,14 @@ __PACKAGE__->config(
 
 );
 
-## ------
-## Uncomment these lines to have the schema auto-deployed during
-## application startup when the sqlite db file is missing:
-#before 'setup' => sub {
-#  my $self = shift;
-#  return if (-f $db_path);
-#  $self->schema_class->connect($self->connect_info->{dsn})->deploy;
-#};
-## ------
+# ------
+# Auto-deploy:
+before 'setup' => sub {
+  my $self = shift;
+  return if (-f $db_path);
+  $self->schema_class->connect($self->connect_info->{dsn})->deploy;
+};
+# ------
 
 
 =head1 NAME
