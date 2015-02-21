@@ -8,6 +8,11 @@ use warnings;
 use Moo;
 use Types::Standard qw(:all);
 
+has 'driver', is => 'ro', isa => InstanceOf['Rapi::Fs::Driver'], required => 1;
+has 'path',   is => 'ro', isa => Str, required => 1;
+
+sub check_val { ... }
+
 
 
 1;
