@@ -1,5 +1,5 @@
 use utf8;
-package Rapi::Fs::DB::Result::FileMeta;
+package Rapi::Fs::Schema::Result::FileMeta;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
@@ -27,20 +27,20 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->belongs_to(
   "id",
-  "Rapi::Fs::DB::Result::File",
+  "Rapi::Fs::Schema::Result::File",
   { id => "id" },
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 __PACKAGE__->belongs_to(
   "realm",
-  "Rapi::Fs::DB::Result::Realm",
+  "Rapi::Fs::Schema::Result::Realm",
   { id => "realm_id" },
   { is_deferrable => 0, on_delete => "RESTRICT", on_update => "RESTRICT" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07040 @ 2015-02-21 16:46:46
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HVKqt8w7f/nG0isOzhi1xg
+# Created by DBIx::Class::Schema::Loader v0.07040 @ 2015-02-21 18:27:31
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2BaosnhCn1yWiCZ8agE8EA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

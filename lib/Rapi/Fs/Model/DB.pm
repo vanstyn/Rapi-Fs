@@ -7,10 +7,12 @@ use warnings;
 
 use Path::Class qw(file);
 use Catalyst::Utils;
-my $db_path = file(Catalyst::Utils::home('Rapi::Fs'),'rapi_fs.db');
+
+my $apphome = $ENV{APPHOME} || Catalyst::Utils::home('Rapi::Fs');
+my $db_path = file($apphome,'rapi_fs.db');
 
 __PACKAGE__->config(
-    schema_class => 'Rapi::Fs::DB',
+    schema_class => 'Rapi::Fs::Schema',
     
     connect_info => {
        dsn => "dbi:SQLite:$db_path",

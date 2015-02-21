@@ -1,5 +1,5 @@
 use utf8;
-package Rapi::Fs::DB::Result::Realm;
+package Rapi::Fs::Schema::Result::Realm;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
@@ -39,26 +39,26 @@ __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("name_unique", ["name"]);
 __PACKAGE__->has_many(
   "directories",
-  "Rapi::Fs::DB::Result::Directory",
+  "Rapi::Fs::Schema::Result::Directory",
   { "foreign.realm_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 __PACKAGE__->has_many(
   "file_metas",
-  "Rapi::Fs::DB::Result::FileMeta",
+  "Rapi::Fs::Schema::Result::FileMeta",
   { "foreign.realm_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 __PACKAGE__->has_many(
   "files",
-  "Rapi::Fs::DB::Result::File",
+  "Rapi::Fs::Schema::Result::File",
   { "foreign.realm_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07040 @ 2015-02-21 16:46:46
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:v2K1ZSsaJBWh5qmfU6F6mw
+# Created by DBIx::Class::Schema::Loader v0.07040 @ 2015-02-21 18:27:31
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:x67q52vlqfIsaIc8SCJ29w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
