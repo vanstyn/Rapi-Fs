@@ -67,6 +67,13 @@ sub fetch_nodes {
   
   my $Mount = $self->mounts_ndx->{$mount} or die "No such mount '$mount'";
   
+  my @dirs  = ();
+  my @files = ();
+  
+  $_->is_dir ? push @dirs, $_ : push @files, $_ for sort {
+    $a->name cmp $b->name
+  } $Mount->get_subnodes($path || '/');
+  
   return [ map {{
     id       => join('/','root',&b64_encode(join('/',$mount,$_->path))),
     name     => $_->name,
@@ -74,7 +81,7 @@ sub fetch_nodes {
     leaf     => $_->is_dir ? 0 : 1,
     loaded   => $_->is_dir ? 0 : 1,
     expanded => $_->is_dir ? 0 : 1,
-  }} $Mount->get_subnodes($path || '/') ];
+  }} @dirs, @files ];
 }
 
 
