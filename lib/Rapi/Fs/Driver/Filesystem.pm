@@ -9,6 +9,7 @@ use Moo;
 extends 'Rapi::Fs::Driver';
 use Types::Standard qw(:all);
 
+use RapidApp::Util ':all';
 use Path::Class qw( file dir );
 
 use Rapi::Fs::File;
@@ -21,6 +22,8 @@ has 'top_dir', is => 'ro', lazy => 1, default => sub {
   
   my $dir = dir( $self->args )->resolve;
   die "$dir is not a directory!" unless (-d $dir);
+  
+  $dir
 
 }, isa => InstanceOf['Path::Class::Dir'];
 
@@ -29,8 +32,6 @@ sub BUILD {
   my $self = shift;
   $self->top_dir; # init
 }
-
-
 
 sub get_node {
   my ($self, $path) = @_;
@@ -46,17 +47,16 @@ sub get_subnodes {
   my $Ent = $self->_path_obj($path); 
 
   $Ent && $Ent->is_dir 
-    ? [ map { $self->_node_factory($_) } $Ent->children ]
-    : []
+    ? map { $self->_node_factory($_) } $Ent->children 
+    : ()
 }
-
 
 
 # Returns a Path::Class::Dir, Path::Class::File or undef
 sub _path_obj {
   my ($self, $path) = @_;
   
-  defined $path return undef;
+  defined $path or return undef;
   
   return $self->top_dir if ($path eq '/' || $path eq '');
 
@@ -73,7 +73,7 @@ sub _node_factory {
   
   $class->new({
     name   => $Ent->basename,
-    path   => $path,
+    path   => $Ent->relative($self->top_dir)->stringify,
     driver => $self
   })
 }

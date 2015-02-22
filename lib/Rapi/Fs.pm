@@ -2,7 +2,7 @@ package Rapi::Fs;
 use Moose;
 use namespace::autoclean;
 
-use RapidApp 1.0000;
+use RapidApp 1.0010;
 
 use Catalyst qw/
     -Debug
@@ -12,6 +12,9 @@ use Catalyst qw/
 extends 'Catalyst';
 
 our $VERSION = '0.01';
+
+use Rapi::Fs::Module::FileTree;
+use Rapi::Fs::Driver::Filesystem;
 
 __PACKAGE__->config(
     name => 'Rapi::Fs',
@@ -26,6 +29,23 @@ __PACKAGE__->config(
       ## To load additional, custom RapidApp modules (under the root module):
       #load_modules => { somemodule => 'Some::RapidApp::Module::Class' }
     },
+    
+    
+    'Plugin::RapidApp::TabGui' => {
+      navtrees => [{
+        module => 'filetree',
+        class => 'Rapi::Fs::Module::FileTree',
+        params => {
+          # Hard-coded mount, just for dev/testing
+          mounts => [
+            Rapi::Fs::Driver::Filesystem->new({
+              name => 'root-home',
+              args => '/root'
+            })
+          ]
+        }
+      }]  
+    }
 
 );
 
