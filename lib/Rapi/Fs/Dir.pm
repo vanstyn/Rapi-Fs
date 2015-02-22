@@ -9,6 +9,10 @@ use Moo;
 extends 'Rapi::Fs::Node';
 use Types::Standard qw(:all);
 
+sub subnodes {
+  my $self = shift;
+  $self->driver->get_subnodes( $self->path )
+}
 
 
 
