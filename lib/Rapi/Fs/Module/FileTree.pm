@@ -6,10 +6,15 @@ use warnings;
 # ABSTRACT: ExtJS tree for Rapi::Fs::Driver filesystems
 
 use Moo;
-extends 'RapidApp::Module::Tree';
+extends 'RapidApp::Module::NavTree';
 use Types::Standard qw(:all);
 
 use RapidApp::Util qw(:all);
+
+# These are from parent classes, but we're declaring fresh since they're Moose and we're Moo:
+has 'accept_subargs',   is => 'rw', isa => Bool, default => sub {1};
+has 'fetch_nodes_deep', is => 'ro', isa => Bool, default => sub {0};
+
 
 ## ----
 ## Our own, modified base64 encode/decode using '-' instead of '/'
@@ -34,8 +39,7 @@ use RapidApp::Util qw(:all);
 sub b64_encode { (shift) }
 sub b64_decode { (shift) }
 
-# This is from RapidApp::Module, but we're declaring fresh
-has 'accept_subargs', is => 'rw', isa => Bool, default => sub {1};
+
 
 has 'mounts', is => 'ro', isa => ArrayRef[InstanceOf['Rapi::Fs::Driver']], required => 1;
 
@@ -98,21 +102,24 @@ sub _fs_to_treenode {
     leaf     => $Node->is_dir ? 0 : 1,
     loaded   => $Node->is_dir ? 0 : 1,
     expanded => $Node->is_dir ? 0 : 1,
-    href     => $self->suburl($enc_path)
+    url      => $self->suburl($enc_path) 
   }
 }
 
 
 sub mounts_nodes {
   my $self = shift;
-
-  return [ map {{
-    id       => join('/','root',&b64_encode($_->name)),
-    name     => $_->name,
-    text     => $_->name,
-    expanded => 0
   
-  }} @{$self->mounts} ]
+  return [ map {
+    my $enc_path = &b64_encode($_->name);
+    {
+      id       => join('/','root',$enc_path),
+      name     => $_->name,
+      text     => $_->name,
+      expanded => 0,
+      url      => $self->suburl($enc_path) 
+    }
+  } @{$self->mounts} ]
 }
 
 
@@ -141,7 +148,7 @@ around 'content' => sub {
       $self->apply_extconfig(
         root => {
           %{ $self->root_node },
-          children => $self->fetch_nodes( join('/','root',$enc_path) )
+          children => $self->call_fetch_nodes( join('/','root',$enc_path) )
         }
       );
     
