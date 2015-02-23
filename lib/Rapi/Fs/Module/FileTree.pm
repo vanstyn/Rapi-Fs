@@ -34,6 +34,8 @@ use RapidApp::Util qw(:all);
 sub b64_encode { (shift) }
 sub b64_decode { (shift) }
 
+# This is from RapidApp::Module, but we're declaring fresh
+has 'accept_subargs', is => 'rw', isa => Bool, default => sub {1};
 
 has 'mounts', is => 'ro', isa => ArrayRef[InstanceOf['Rapi::Fs::Driver']], required => 1;
 
@@ -52,6 +54,13 @@ sub BUILD {
   $seen{$_->name}++ and die join(' ',"Duplicate mount name",$_->name) for (@mounts);
   
   $self->mounts_ndx; #init
+  
+  $self->apply_extconfig(
+    tabTitle   => 'File Tree',
+    tabIconCls => 'ra-icon-folder'
+  );
+  
+  #$self->accept_subargs(1);
 }
 
 
@@ -74,16 +83,24 @@ sub fetch_nodes {
     $a->name cmp $b->name
   } $Mount->get_subnodes($path || '/');
   
-  return [ map {{
-    id       => join('/','root',&b64_encode(join('/',$mount,$_->path))),
-    name     => $_->name,
-    text     => $_->name,
-    leaf     => $_->is_dir ? 0 : 1,
-    loaded   => $_->is_dir ? 0 : 1,
-    expanded => $_->is_dir ? 0 : 1,
-  }} @dirs, @files ];
+  return [ map { $self->_fs_to_treenode($_,$mount) } @dirs, @files ];
 }
 
+sub _fs_to_treenode {
+  my ($self, $Node, $mount) = @_;
+  
+  my $enc_path = &b64_encode(join('/',$mount,$Node->path));
+
+  return {
+    id       => join('/','root',$enc_path),
+    name     => $Node->name,
+    text     => $Node->name,
+    leaf     => $Node->is_dir ? 0 : 1,
+    loaded   => $Node->is_dir ? 0 : 1,
+    expanded => $Node->is_dir ? 0 : 1,
+    href     => $self->suburl($enc_path)
+  }
+}
 
 
 sub mounts_nodes {
@@ -97,6 +114,49 @@ sub mounts_nodes {
   
   }} @{$self->mounts} ]
 }
+
+
+around 'content' => sub {
+  my ($orig,$self,@args) = @_;
+  
+  my @largs = $self->local_args;
+  
+  if(@largs > 0) {
+  
+    my $enc_path = join('/',@largs);
+    my ($mount, $path) = split(/\//,&b64_decode($enc_path),2);
+  
+    my $Mount = $self->mounts_ndx->{$mount} or die usererr "No such mount '$mount'";
+    
+    my $Node = $Mount->get_node($path || '/');
+    
+    $self->apply_extconfig(
+      tabTitle => $Node->name,
+      autoScroll => 1
+    );
+    
+    if($Node->is_dir) {
+      
+      # Set the top-level children to the nodes of the supplied path:
+      $self->apply_extconfig(
+        root => {
+          %{ $self->root_node },
+          children => $self->fetch_nodes( join('/','root',$enc_path) )
+        }
+      );
+    
+    }
+    else {
+      # TODO, forward to a file view page...
+      
+      die usererr "Is a file - not yet implemented...";
+    }
+  
+  
+  }
+  
+  $self->$orig(@args)
+};
 
 
 1;
