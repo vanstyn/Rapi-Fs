@@ -71,9 +71,12 @@ sub _node_factory {
   
   my $class = $Ent->is_dir ? 'Rapi::Fs::Dir' : 'Rapi::Fs::File';
   
+  my $path = $Ent->relative($self->top_dir)->stringify;
+  $path = '/' if ($path eq '.');
+  
   $class->new({
     name   => $Ent->basename,
-    path   => $Ent->relative($self->top_dir)->stringify,
+    path   => $path,
     driver => $self
   })
 }

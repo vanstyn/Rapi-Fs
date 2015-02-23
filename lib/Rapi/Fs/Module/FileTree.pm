@@ -61,7 +61,7 @@ sub BUILD {
   
   $self->apply_extconfig(
     tabTitle   => 'File Tree',
-    tabIconCls => 'ra-icon-folder'
+    tabIconCls => 'ra-icon-folders'
   );
   
   #$self->accept_subargs(1);
@@ -93,7 +93,9 @@ sub fetch_nodes {
 sub _fs_to_treenode {
   my ($self, $Node, $mount) = @_;
   
-  my $enc_path = &b64_encode(join('/',$mount,$Node->path));
+  my $enc_path = $Node->path && $Node->path ne '/'
+    ? &b64_encode(join('/',$mount,$Node->path))
+    : &b64_encode($mount);
 
   return {
     id       => join('/','root',$enc_path),
@@ -116,6 +118,7 @@ sub mounts_nodes {
       id       => join('/','root',$enc_path),
       name     => $_->name,
       text     => $_->name,
+      iconCls  => 'ra-icon-folder-network',
       expanded => 0,
       url      => $self->suburl($enc_path) 
     }
@@ -143,12 +146,28 @@ around 'content' => sub {
     );
     
     if($Node->is_dir) {
+    
+      my $children = $self->call_fetch_nodes( join('/','root',$enc_path) );
+      
+      if(my $Parent = $Node->parent) {
+        my $text = '<span class="blue-text-code">..</span>';
+        unshift @$children, {
+          %{ $self->prepare_node( $self->_fs_to_treenode($Parent,$mount) ) },
+          name     => $text,
+          text     => $text,
+          iconCls  => 'ra-icon-folder-up',
+          expanded => 0,
+          loaded   => 1,
+          leaf     => 1
+        };
+      }
       
       # Set the top-level children to the nodes of the supplied path:
       $self->apply_extconfig(
+        tabIconCls => 'ra-icon-folder',
         root => {
           %{ $self->root_node },
-          children => $self->call_fetch_nodes( join('/','root',$enc_path) )
+          children => $children
         }
       );
     
