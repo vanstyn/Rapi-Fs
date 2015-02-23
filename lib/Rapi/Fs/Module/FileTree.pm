@@ -138,10 +138,11 @@ around 'content' => sub {
   
     my $Mount = $self->mounts_ndx->{$mount} or die usererr "No such mount '$mount'";
     
-    my $Node = $Mount->get_node($path || '/');
+    $path ||= '/';
+    my $Node = $Mount->get_node($path);
     
     $self->apply_extconfig(
-      tabTitle => $Node->name,
+      tabTitle => $path eq '/' ? $mount : $Node->name,
       autoScroll => 1
     );
     
@@ -164,7 +165,7 @@ around 'content' => sub {
       
       # Set the top-level children to the nodes of the supplied path:
       $self->apply_extconfig(
-        tabIconCls => 'ra-icon-folder',
+        tabIconCls => $path eq '/' ? 'ra-icon-folder-network' : 'ra-icon-folder',
         root => {
           %{ $self->root_node },
           children => $children
