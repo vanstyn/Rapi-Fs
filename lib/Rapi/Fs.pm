@@ -16,6 +16,23 @@ our $VERSION = '0.01';
 use Rapi::Fs::Module::FileTree;
 use Rapi::Fs::Driver::Filesystem;
 
+# -----------------
+# Temporary/just for development -- will be replaced with a real system for
+# configuring and loading mounts later on ....
+my $mounts = [
+  Rapi::Fs::Driver::Filesystem->new({
+    name => 'root-home',
+    args => '/root'
+  }),
+  Rapi::Fs::Driver::Filesystem->new({
+    name => 'proc',
+    args => '/proc'
+  })
+];
+sub _get_driver_mounts { $mounts }
+#
+# -----------------
+
 __PACKAGE__->config(
     name => 'Rapi::Fs',
 
@@ -27,7 +44,15 @@ __PACKAGE__->config(
       #module_root_namespace => 'adm',
 
       ## To load additional, custom RapidApp modules (under the root module):
-      #load_modules => { somemodule => 'Some::RapidApp::Module::Class' }
+      #load_modules => {
+      #  fileview => {
+      #    class  => 'Rapi::Fs::Module::FileView',
+      #    params => {
+      #      # Hard-coded mount, just for dev/testing
+      #      mounts => &_get_driver_mounts
+      #    }
+      #  }
+      #}
     },
     
     
@@ -37,12 +62,7 @@ __PACKAGE__->config(
         class => 'Rapi::Fs::Module::FileTree',
         params => {
           # Hard-coded mount, just for dev/testing
-          mounts => [
-            Rapi::Fs::Driver::Filesystem->new({
-              name => 'root-home',
-              args => '/root'
-            })
-          ]
+          mounts => &_get_driver_mounts
         }
       }]  
     }
@@ -51,6 +71,7 @@ __PACKAGE__->config(
 
 # Start the application
 __PACKAGE__->setup();
+
 
 1;
 

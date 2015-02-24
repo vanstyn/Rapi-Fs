@@ -12,6 +12,15 @@ has 'driver', is => 'ro', isa => InstanceOf['Rapi::Fs::Driver'], required => 1;
 has 'path',   is => 'ro', isa => Str, required => 1;
 has 'name',   is => 'ro', isa => Str, required => 1;
 
+# Arbitrary container reserved for the driver to persist/cache data associated
+# with this node object. What this will hold, if anything, is up to the driver
+has 'driver_stash', is => 'ro', isa => HashRef, default => sub {{}};
+
+has 'mtime', is => 'ro', lazy => 1, default => sub {
+  my $self = shift;
+  $self->driver->get_node_mtime( $self )
+}, isa => Int;
+
 has 'parent_path', is => 'ro', lazy => 1, default => sub {
   my $self = shift;
   

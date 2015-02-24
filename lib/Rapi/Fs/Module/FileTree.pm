@@ -7,64 +7,23 @@ use warnings;
 
 use Moo;
 extends 'RapidApp::Module::NavTree';
+with 'Rapi::Fs::Module::Role::Mounts';
+
 use Types::Standard qw(:all);
 
 use RapidApp::Util qw(:all);
 
 # These are from parent classes, but we're declaring fresh since they're Moose and we're Moo:
-has 'accept_subargs',   is => 'rw', isa => Bool, default => sub {1};
 has 'fetch_nodes_deep', is => 'ro', isa => Bool, default => sub {0};
 
 
-## ----
-## Our own, modified base64 encode/decode using '-' instead of '/'
-#use MIME::Base64;
-#
-#sub b64_encode {
-#  my $str = MIME::Base64::encode($_[0]);
-#  $str =~ s/\//\-/g;
-#  $str =~ s/\r?\n//g;
-#  $str
-#}
-#
-#sub b64_decode {
-#  my $str = shift;
-#  $str =~ s/\-/\//g;
-#  MIME::Base64::decode($str)
-#}
-## ----
-
-# ^^ Special base64 encoding not really needed at this point, 
-#    turn off w/ raw passthrough:
-sub b64_encode { (shift) }
-sub b64_decode { (shift) }
-
-
-
-has 'mounts', is => 'ro', isa => ArrayRef[InstanceOf['Rapi::Fs::Driver']], required => 1;
-
-has 'mounts_ndx', is => 'ro', lazy => 1, init_arg => undef, default => sub {
-  my $self = shift;
-  return { map { $_->name => $_ } @{$self->mounts} }
-}, isa => HashRef;
-
 sub BUILD {
   my $self = shift;
-  
-  my @mounts = @{ $self->mounts };
-  die "Must supply at least one Rapi::Fs::Driver mount in mounts!" if (@mounts == 0);
-  
-  my %seen = ();
-  $seen{$_->name}++ and die join(' ',"Duplicate mount name",$_->name) for (@mounts);
-  
-  $self->mounts_ndx; #init
   
   $self->apply_extconfig(
     tabTitle   => 'File Tree',
     tabIconCls => 'ra-icon-folders'
   );
-  
-  #$self->accept_subargs(1);
 }
 
 
@@ -76,9 +35,9 @@ sub fetch_nodes {
   my ($prefix, $enc_path) = split(/\//,$node,2);
   die "Malformed node path '$node'" unless ($prefix eq 'root');
   
-  my ($mount, $path) = split(/\//,&b64_decode($enc_path),2);
+  my ($mount, $path) = split(/\//,$self->b64_decode($enc_path),2);
   
-  my $Mount = $self->mounts_ndx->{$mount} or die "No such mount '$mount'";
+  my $Mount = $self->get_mount($mount);
   
   my @dirs  = ();
   my @files = ();
@@ -94,8 +53,8 @@ sub _fs_to_treenode {
   my ($self, $Node, $mount) = @_;
   
   my $enc_path = $Node->path && $Node->path ne '/'
-    ? &b64_encode(join('/',$mount,$Node->path))
-    : &b64_encode($mount);
+    ? $self->b64_encode(join('/',$mount,$Node->path))
+    : $self->b64_encode($mount);
 
   return {
     id       => join('/','root',$enc_path),
@@ -114,7 +73,7 @@ sub mounts_nodes {
   my $self = shift;
   
   return [ map {
-    my $enc_path = &b64_encode($_->name);
+    my $enc_path = $self->b64_encode($_->name);
     {
       id       => join('/','root',$enc_path),
       name     => $_->name,
@@ -130,20 +89,14 @@ sub mounts_nodes {
 around 'content' => sub {
   my ($orig,$self,@args) = @_;
   
-  my @largs = $self->local_args;
+  if (my $Node = $self->Node_from_local_args) {
   
-  if(@largs > 0) {
-  
-    my $enc_path = join('/',@largs);
-    my ($mount, $path) = split(/\//,&b64_decode($enc_path),2);
-  
-    my $Mount = $self->mounts_ndx->{$mount} or die usererr "No such mount '$mount'";
+    my $mount    = $Node->driver->name;
+    my $enc_path = $self->b64_encode( join('/',$mount,$Node->path) );
     
-    $path ||= '/';
-    my $Node = $Mount->get_node($path);
-    
+  
     $self->apply_extconfig(
-      tabTitle => $path eq '/' ? $mount : $Node->name,
+      tabTitle => $Node->path eq '/' ? $mount : $Node->name,
       autoScroll => 1
     );
     
@@ -179,36 +132,13 @@ around 'content' => sub {
       
       die usererr "Is a file - not yet implemented...";
     }
-  
-  
+
   }
   
   $self->$orig(@args)
 };
 
 
-sub iconcls_for_node {
-  my ($self, $Node) = @_;
-  
-  # NOTE: this method is not used for dir nodes within the tree because we use the
-  # ExtJS default cls which is already a folder with expanded/collapsed states
-  if($Node->is_dir) {
-    return $Node->path eq '/' 
-      ? 'ra-icon-folder-network' 
-      : 'ra-icon-folder'
-  }
-  else {
-    return 'ra-icon-document-14x14-light' if ($Node->name =~ /^\./);
-    
-    my @parts = split(/\./,$Node->name);
-    my $ext = scalar(@parts) > 1 ? pop @parts : undef;
-    
-    return $ext ? "filelink $ext" : 'ra-icon-page-white-14x14';
-  
-  }
-
-
-}
 
 
 1;
