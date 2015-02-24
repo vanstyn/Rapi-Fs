@@ -6,7 +6,7 @@ use warnings;
 # ABSTRACT: Standard filesystem driver
 
 use Moo;
-extends 'Rapi::Fs::Driver';
+with 'Rapi::Fs::Role::Driver';
 use Types::Standard qw(:all);
 
 use RapidApp::Util ':all';
@@ -48,7 +48,7 @@ sub get_node {
 }
 
 
-sub get_subnodes {
+sub node_get_subnodes {
   my ($self, $path) = @_;
   
   my $Ent = $self->_path_obj($path); 

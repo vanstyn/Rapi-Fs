@@ -8,7 +8,7 @@ use warnings;
 use Moo;
 use Types::Standard qw(:all);
 
-has 'driver', is => 'ro', isa => InstanceOf['Rapi::Fs::Driver'], required => 1;
+has 'driver', is => 'ro', isa => ConsumerOf['Rapi::Fs::Role::Driver'], required => 1;
 has 'path',   is => 'ro', isa => Str, required => 1;
 has 'name',   is => 'ro', isa => Str, required => 1;
 

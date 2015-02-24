@@ -13,7 +13,7 @@ use RapidApp::Util qw(:all);
 # From RapidApp::Module
 has 'accept_subargs',   is => 'rw', isa => Bool, default => sub {1};
 
-has 'mounts', is => 'ro', isa => ArrayRef[InstanceOf['Rapi::Fs::Driver']], required => 1;
+has 'mounts', is => 'ro', isa => ArrayRef[ConsumerOf['Rapi::Fs::Role::Driver']], required => 1;
 
 has '_mounts_ndx', is => 'ro', lazy => 1, init_arg => undef, default => sub {
   my $self = shift;

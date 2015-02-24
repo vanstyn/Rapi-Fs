@@ -13,7 +13,7 @@ sub is_dir { 1 }
 
 sub subnodes {
   my $self = shift;
-  $self->driver->get_subnodes( $self->path )
+  $self->driver->node_get_subnodes( $self->path )
 }
 
 

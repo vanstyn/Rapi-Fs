@@ -44,7 +44,7 @@ sub fetch_nodes {
   
   $_->is_dir ? push @dirs, $_ : push @files, $_ for sort {
     $a->name cmp $b->name
-  } $Mount->get_subnodes($path || '/');
+  } $Mount->node_get_subnodes($path || '/');
   
   return [ map { $self->_fs_to_treenode($_,$mount) } @dirs, @files ];
 }
