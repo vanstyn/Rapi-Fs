@@ -79,27 +79,5 @@ sub Node_from_local_args {
   $Mount->get_node($path);
 }
 
-sub iconcls_for_node {
-  my ($self, $Node) = @_;
-  
-  # NOTE: this method is not used for dir nodes within the tree because we use the
-  # ExtJS default cls which is already a folder with expanded/collapsed states
-  if($Node->is_dir) {
-    return $Node->path eq '/' 
-      ? 'ra-icon-folder-network' 
-      : 'ra-icon-folder'
-  }
-  else {
-    return 'ra-icon-document-14x14-light' if ($Node->name =~ /^\./);
-    
-    my @parts = split(/\./,$Node->name);
-    my $ext = scalar(@parts) > 1 ? pop @parts : undef;
-    
-    return $ext ? "filelink $ext" : 'ra-icon-page-white-14x14';
-  
-  }
-
-}
-
 
 1;

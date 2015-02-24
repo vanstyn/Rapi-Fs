@@ -9,10 +9,26 @@ use Moo;
 extends 'Rapi::Fs::Node';
 use Types::Standard qw(:all);
 
-has 'bytes', is => 'ro', lazy => 1, default => sub {
-  my $self = shift;
-  $self->driver->get_file_bytes( $self )
-}, isa => Int;
+sub _has_attr {
+  my $attr = shift;
+  has $attr, is => 'rw', isa => Maybe[Str], lazy => 1,
+  default => sub {
+    my $self = shift;
+    $self->driver->call_node_get( $attr => $self )
+  }, @_
+}
+
+_has_attr 'bytes', is => 'ro', isa => Int;
+
+
+# These are extra, *optional* attrs which might be available in driver and/or set by user:
+_has_attr $_ for qw(
+  download_url
+  mime_type
+  mime_subtype
+  height
+  width
+);
 
 
 1;

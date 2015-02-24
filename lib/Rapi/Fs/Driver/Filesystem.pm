@@ -97,17 +97,40 @@ sub _get_node_stat {
 }
 
 
-sub get_file_bytes {
+sub node_get_bytes {
   my ($self, $path) = @_;
   my $stat = $self->_get_node_stat($path) or return undef;
   $stat->size
 }
 
-sub get_node_mtime {
+sub node_get_mtime {
   my ($self, $path) = @_;
   my $stat = $self->_get_node_stat($path) or return undef;
   $stat->mtime
 }
+
+
+sub node_get_iconCls {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  
+  # NOTE: this method should not used for dir nodes within ExtJS tree because we want
+  # to use the ExtJS default cls which is already a folder with expanded/collapsed states
+  if($Node->is_dir) {
+    return $Node->path eq '/' 
+      ? 'ra-icon-folder-network' 
+      : 'ra-icon-folder'
+  }
+  else {
+    return 'ra-icon-document-14x14-light' if ($Node->name =~ /^\./);
+    
+    my @parts = split(/\./,$Node->name);
+    my $ext = scalar(@parts) > 1 ? pop @parts : undef;
+    
+    return $ext ? "filelink $ext" : 'ra-icon-page-white-14x14';
+  }
+}
+
 
 
 1;

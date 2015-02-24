@@ -64,7 +64,7 @@ sub _fs_to_treenode {
     loaded   => $Node->is_dir ? 0 : 1,
     expanded => $Node->is_dir ? 0 : 1,
     url      => $self->suburl($enc_path),
-    $Node->is_dir ? () : ( iconCls => $self->iconcls_for_node($Node) )
+    $Node->is_dir ? () : ( iconCls => $Node->iconCls )
   }
 }
 
@@ -92,9 +92,10 @@ around 'content' => sub {
   if (my $Node = $self->Node_from_local_args) {
   
     my $mount    = $Node->driver->name;
-    my $enc_path = $self->b64_encode( join('/',$mount,$Node->path) );
+    my $enc_path = $self->b64_encode( 
+      join('/',$mount,$Node->path eq '/' ? '' : $Node->path) 
+    );
     
-  
     $self->apply_extconfig(
       tabTitle => $Node->path eq '/' ? $mount : $Node->name,
       autoScroll => 1,
@@ -120,7 +121,7 @@ around 'content' => sub {
       
       # Set the top-level children to the nodes of the supplied path:
       $self->apply_extconfig(
-        tabIconCls => $self->iconcls_for_node($Node),
+        tabIconCls => $Node->iconCls || 'ra-icon-folder',
         root => {
           %{ $self->root_node },
           children => $children
