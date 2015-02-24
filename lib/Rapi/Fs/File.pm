@@ -8,6 +8,7 @@ use warnings;
 use Moo;
 extends 'Rapi::Fs::Node';
 use Types::Standard qw(:all);
+use Number::Bytes::Human qw(format_bytes parse_bytes);
 
 sub _has_attr {
   my $attr = shift;
@@ -19,6 +20,8 @@ sub _has_attr {
 }
 
 _has_attr 'bytes', is => 'ro', isa => Int;
+
+sub bytes_human { format_bytes( (shift)->bytes ) }
 
 
 # These are extra, *optional* attrs which might be available in driver and/or set by user:

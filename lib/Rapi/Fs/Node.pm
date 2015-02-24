@@ -45,8 +45,4 @@ _has_attr $_ for qw(
 
 
 
-
-
-
-
 1;

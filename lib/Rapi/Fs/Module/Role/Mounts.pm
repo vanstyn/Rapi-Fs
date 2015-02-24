@@ -62,8 +62,14 @@ after 'BUILD' => sub {
 
 # ^^ Special base64 encoding not really needed at this point, 
 #    turn off w/ raw passthrough:
+#sub b64_encode { $_[1] }
+#sub b64_decode { $_[1] }
+
+use URI::Escape;
+
 sub b64_encode { $_[1] }
-sub b64_decode { $_[1] }
+sub b64_decode { uri_unescape($_[1]) }
+
 
 sub Node_from_local_args {
   my $self = shift;
@@ -74,9 +80,13 @@ sub Node_from_local_args {
   my $mount = shift @largs;
   my $path  = scalar(@largs > 0) ? $self->b64_decode( join('/',@largs) ) : '/';
   
-  my $Mount = try{ $self->get_mount($mount) } or die usererr "No such mount '$mount'";
-  
-  $Mount->get_node($path);
+  try{ $self->get_mount($mount)->get_node($path) } or do {
+    my $c = $self->c;
+    $c->stash->{template} = 'rapidapp/http-404.html';
+    $c->stash->{current_view} = 'RapidApp::Template';
+    $c->res->status(404);
+    $c->detach
+  }
 }
 
 
