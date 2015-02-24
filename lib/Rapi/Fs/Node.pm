@@ -20,33 +20,6 @@ sub subnodes { [] }
 # and is intended for internal use by the driver only
 has 'driver_stash', is => 'ro', isa => HashRef, default => sub {{}};
 
-sub parent {
-  my $self = shift;
-  $self->parent_path ? $self->driver->get_node( $self->parent_path ) : undef
-}
-
-has 'parent_path', is => 'ro', lazy => 1, default => sub {
-  my $self = shift;
-  
-  return undef unless (
-    $self->path &&
-    $self->path ne '' &&
-    $self->path ne '/'
-  );
-  
-  return '/' unless ($self->path =~ /\//);
-  
-  my @parts = split(/\//,$self->path);
-  
-  pop @parts if (pop @parts eq ''); # handles trailing '/'
-  
-  my $parent = scalar(@parts) > 0 ? join('/',@parts) : undef;
-  $parent && $parent ne '' ? $parent : undef
-
-}, isa => Maybe[Str], init_arg => undef;
-
-
-
 sub _has_attr {
   my $attr = shift;
   has $attr, is => 'rw', isa => Maybe[Str], lazy => 1,
@@ -56,10 +29,12 @@ sub _has_attr {
   }, @_
 }
 
-_has_attr 'mtime', is => 'ro', isa => Int;
+_has_attr 'mtime',       is => 'ro', isa => Int;
+_has_attr 'parent_path', is => 'ro', isa => Maybe[Str];
+_has_attr 'parent',      is => 'ro', isa => Maybe[InstanceOf['Rapi::Fs::Dir']];
 
 
-# These are extra, *optional* attrs which might be set by driver and/or user:
+# These are extra, *optional* attrs which might be available in driver and/or set by user:
 _has_attr $_ for qw(
   iconCls
   cls

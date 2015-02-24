@@ -11,6 +11,8 @@
 <table class="r-simple-table">
   <tr><th>Filename</th>    <td>[% File.name %]</td></tr>
   <tr><th>Path</th>        <td>[% File.parent.path %]</td></tr>
+  <tr><th>Parent url</th>        <td>[% File.parent.view_url %]</td></tr>
+  <tr><th>Parent name</th>        <td>[% File.parent.name %]</td></tr>
   <tr><th>Size</th>        <td>[% File.bytes %]</td></tr>
   <tr><th>mtime</th>       <td>[% File.mtime %]</td></tr>
 </table>

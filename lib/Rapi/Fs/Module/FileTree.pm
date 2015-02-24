@@ -49,12 +49,23 @@ sub fetch_nodes {
   return [ map { $self->_fs_to_treenode($_,$mount) } @dirs, @files ];
 }
 
-sub _fs_to_treenode {
+
+sub _apply_node_view_url {
   my ($self, $Node, $mount) = @_;
   
   my $enc_path = $Node->path && $Node->path ne '/'
     ? $self->b64_encode(join('/',$mount,$Node->path))
     : $self->b64_encode($mount);
+    
+  $Node->view_url( $self->suburl($enc_path) );
+  
+  $enc_path
+}
+
+sub _fs_to_treenode {
+  my ($self, $Node, $mount) = @_;
+  
+  my $enc_path = $self->_apply_node_view_url($Node,$mount);
 
   return {
     id       => join('/','root',$enc_path),
@@ -63,7 +74,7 @@ sub _fs_to_treenode {
     leaf     => $Node->is_dir ? 0 : 1,
     loaded   => $Node->is_dir ? 0 : 1,
     expanded => $Node->is_dir ? 0 : 1,
-    url      => $self->suburl($enc_path),
+    url      => $Node->view_url,
     $Node->is_dir ? () : ( iconCls => $Node->iconCls )
   }
 }
@@ -140,6 +151,9 @@ around 'content' => sub {
         
       }
       elsif($meth eq 'view') {
+      
+        $self->_apply_node_view_url($Node->parent,$mount);
+      
         $c->stash->{template}   = 'fileview.html';
         $c->stash->{RapiFsFile} = $Node;
         

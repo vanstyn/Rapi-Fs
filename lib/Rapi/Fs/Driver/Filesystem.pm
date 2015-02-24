@@ -82,7 +82,7 @@ sub _node_factory {
   $path = '/' if ($path eq '.');
   
   $class->new({
-    name          => $Ent->basename,
+    name          => $path eq '/' ? $self->name : $Ent->basename,
     path          => $path,
     driver        => $self,
     driver_stash  => { path_obj => $Ent }
@@ -94,6 +94,32 @@ sub _get_node_stat {
   my ($self, $path) = @_;
   my $Node = $self->get_node($path) or return undef;
   $Node->driver_stash->{stat} //= $Node->driver_stash->{path_obj}->stat
+}
+
+sub node_get_parent {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  $Node->parent_path ? $self->get_node( $Node->parent_path ) : undef
+}
+
+sub node_get_parent_path {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  
+  return undef unless (
+    $Node->path &&
+    $Node->path ne '' &&
+    $Node->path ne '/'
+  );
+  
+  return '/' unless ($Node->path =~ /\//);
+  
+  my @parts = split(/\//,$Node->path);
+  
+  pop @parts if (pop @parts eq ''); # handles trailing '/'
+  
+  my $parent = scalar(@parts) > 0 ? join('/',@parts) : undef;
+  $parent && $parent ne '' ? $parent : undef
 }
 
 

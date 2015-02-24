@@ -26,6 +26,8 @@ Must also be able accept existing Node object arg and return it back to the call
 sub get_node { ... }
 
 # Required node_get_ methods:
+sub node_get_parent { ... }
+sub node_get_parent_path { ... }
 sub node_get_subnodes { ... }
 sub node_get_bytes { ... }
 sub node_get_mtime { ... }
