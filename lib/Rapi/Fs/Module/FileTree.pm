@@ -58,6 +58,11 @@ sub _apply_node_view_url {
     : $self->b64_encode($mount);
     
   $Node->view_url( $self->suburl($enc_path) );
+  $Node->download_url( join('',
+    $Node->view_url,
+    '?method=download',
+    '&__no_hashnav_redirect=1'
+  )) unless ($Node->is_dir);
   
   $enc_path
 }
@@ -146,12 +151,25 @@ around 'content' => sub {
       my $meth = $c->req->params->{method} || 'view';
       
       if($meth eq 'download') {
-        die usererr "File download not yet implemented...";
+        my $fh = $Node->fh or die usererr "Failed to obtain filehandle!";
         
+        my $h = $c->res->headers;
+
+        $h->header('Content-disposition' => join('','attachment; filename="',$Node->name,'"'));
+        $h->content_type( $Node->content_type );
+        $h->content_length( $Node->bytes );
+        $h->last_modified( $Node->mtime || time );
+        $h->expires(time());
+        $h->header('Pragma' => 'no-cache');
+        $h->header('Cache-Control' => 'no-cache');
         
+        $c->res->body( $fh );
+        
+        return $c->detach;
       }
       elsif($meth eq 'view') {
       
+        $self->_apply_node_view_url($Node,$mount);
         $self->_apply_node_view_url($Node->parent,$mount);
       
         $c->stash->{template}   = 'fileview.html';

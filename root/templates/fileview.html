@@ -10,8 +10,14 @@
   }
   .rapi-fs-fileview .bigger {
     font-weight:bold;
-    display:normal;
     font-size:1.1em;
+  }
+  .rapi-fs-fileview .download {
+    font-weight:bold;
+    font-size:12px;
+  }
+  .rapi-fs-fileview .with-icon {
+    display: inline;
   }
 </style>
 
@@ -19,7 +25,15 @@
 
 <div class="rapi-fs-fileview" style="font-size:12px;">
 
-<h4><span class="bigger">[% File.name %]</span>&nbsp;&nbsp;<i><span class="grey">([% File.bytes_human %])</span></i></h4>
+<h4>
+  <span class="bigger">[% File.name %]</span>&nbsp;
+  <i><span class="grey">([% File.bytes_human %])</span></i>&nbsp;
+  <a 
+        class="with-icon ra-icon-bullet-disk download"
+        href="[% File.download_url %]"
+        target="_self"
+      >Save</a>
+</h4>
 
 <table class="r-simple-table">
   <tr>
@@ -32,7 +46,18 @@
       <span class="grey">([% File.driver.name _ '/' _ File.parent.path %])</span>
     </td>
   </tr>
-  <tr><th>Size</th>             <td>[% File.bytes %] bytes</td></tr>
+  <tr>
+    <th>Filename</th>
+    <td>
+      <span class="with-icon [% File.iconCls %]">[% File.name %]</span>&nbsp;&nbsp;
+    </td>
+  </tr>
+  <tr>
+    <th>Size</th>
+    <td>
+      [% File.bytes %] bytes &nbsp;&nbsp;
+    </td>
+  </tr>
   <tr><th>mtime</th>            <td>[% File.mtime %]</td></tr>
 </table>
 </div>

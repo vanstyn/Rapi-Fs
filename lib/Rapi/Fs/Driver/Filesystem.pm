@@ -12,6 +12,7 @@ use Types::Standard qw(:all);
 use RapidApp::Util ':all';
 use Path::Class qw( file dir );
 use Scalar::Util qw( blessed );
+use File::MimeInfo::Magic;
 
 use Rapi::Fs::File;
 use Rapi::Fs::Dir;
@@ -122,6 +123,11 @@ sub node_get_parent_path {
   $parent && $parent ne '' ? $parent : undef
 }
 
+sub node_get_fh {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  $Node->driver_stash->{path_obj}->openr()
+}
 
 sub node_get_bytes {
   my ($self, $path) = @_;
@@ -157,6 +163,12 @@ sub node_get_iconCls {
   }
 }
 
+
+sub node_get_mimetype {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  mimetype( $Node->driver_stash->{path_obj}->stringify )
+}
 
 
 1;
