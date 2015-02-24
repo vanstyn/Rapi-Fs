@@ -97,7 +97,8 @@ around 'content' => sub {
   
     $self->apply_extconfig(
       tabTitle => $Node->path eq '/' ? $mount : $Node->name,
-      autoScroll => 1
+      autoScroll => 1,
+      border => 1
     );
     
     if($Node->is_dir) {
@@ -128,9 +129,26 @@ around 'content' => sub {
     
     }
     else {
-      # TODO, forward to a file view page...
       
-      die usererr "Is a file - not yet implemented...";
+      my $c = $self->c;
+      my $meth = $c->req->params->{method} || 'view';
+      
+      if($meth eq 'download') {
+        die usererr "File download not yet implemented...";
+        
+        
+      }
+      elsif($meth eq 'view') {
+        $c->stash->{template}   = 'fileview.html';
+        $c->stash->{RapiFsFile} = $Node;
+        
+        return $c->detach( $c->view('RapidApp::Template') );
+      }
+      else {
+        die usererr "No such method '$meth'";
+      
+      }
+      
     }
 
   }
