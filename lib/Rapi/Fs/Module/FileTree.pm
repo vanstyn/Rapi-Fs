@@ -10,6 +10,7 @@ extends 'RapidApp::Module::NavTree';
 with 'Rapi::Fs::Module::Role::Mounts';
 
 use Types::Standard qw(:all);
+use URI;
 
 use RapidApp::Util qw(:all);
 
@@ -61,16 +62,8 @@ sub _apply_node_view_url {
   $Node->view_url( $self->suburl($enc_path) );
   
   unless ($Node->is_dir) {
-    $Node->download_url( join('',
-      $Node->view_url,
-      '?method=download',
-      '&__no_hashnav_redirect=1'
-    ));
-    $Node->open_url( join('',
-      $Node->view_url,
-      '?method=open',
-      '&__no_hashnav_redirect=1'
-    ));
+    $Node->download_url( join('',$Node->view_url,'?method=download'));
+    $Node->open_url( join('',$Node->view_url,'?method=open'));
   }
   
   $enc_path
@@ -157,7 +150,15 @@ around 'content' => sub {
     else {
       
       my $c = $self->c;
-      my $meth = $c->req->params->{method} || 'view';
+      my $meth = $c->req->params->{method} ||
+        # If there was no supplied method, the default is 'view' which renders
+        # the fileview.html template page to view the file info. However, if the
+        # request was "referred" internally and is *not* a request from the Ajax
+        # JS client, we set the default method to 'open' which renders the file
+        # directly. This logic allows html-content which is rendered in an iframe
+        # to be able to properly fetch its own links, like css, js and images,
+        # all work as expected:
+        $self->_is_self_referred_request && !$c->is_ra_ajax_req ? 'open' : 'view';
       
       if($meth eq 'download' || $meth eq 'open') {
         my $fh = $Node->fh or die usererr "Failed to obtain filehandle!";
@@ -199,6 +200,33 @@ around 'content' => sub {
   }
   
   $self->$orig(@args)
+};
+
+
+sub _is_self_referred_request {
+  my $self = shift;
+  
+  my $c = $self->c;
+  if( my $rUri = $c->req->referer ? URI->new( $c->req->referer ) : undef ) {
+    return $c->req->uri->host_port eq $rUri->host_port
+  }
+  return 0;
+}
+
+
+around 'auto_hashnav_redirect_current' => sub {
+  my ($orig, $self, @args) = @_;
+  
+  my $uri_query = $self->c->req->uri->query || '';
+  
+  $self->$orig(@args) unless (
+    # Stop hashnav_redirect for referrers from ourself
+    $self->_is_self_referred_request
+    
+    # Or in the case of a supplied known method param
+    || $uri_query eq 'method=open'
+    || $uri_query eq 'method=download'
+  )
 };
 
 

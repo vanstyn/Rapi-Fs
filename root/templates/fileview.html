@@ -81,8 +81,17 @@
     
   </table>
   
-  [% IF File.open_url && File.mime_type == 'image' %]
-    <img src="[% File.open_url %]">
+  [% IF File.open_url %]
+    [% IF File.mime_type == 'image' %]
+      <img src="[% File.open_url %]">
+    [% ELSIF File.mime_type == 'text' %]
+      <iframe 
+        class="ux-mif" 
+        frameborder="0" 
+        style="overflow: auto; width: 90%; height: 450px;" 
+        src="[% File.open_url %]"
+      ></iframe>
+    [% END %]
   [% END %]
 
 </div>
