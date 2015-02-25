@@ -15,6 +15,7 @@ use RapidApp::Util qw(:all);
 
 # These are from parent classes, but we're declaring fresh since they're Moose and we're Moo:
 has 'fetch_nodes_deep', is => 'ro', isa => Bool, default => sub {0};
+has 'use_contextmenu',  is => 'ro', isa => Bool, default => sub {1};
 
 
 sub BUILD {
