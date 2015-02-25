@@ -23,7 +23,11 @@ _has_attr 'fh',       is => 'ro', isa => InstanceOf['IO::Handle'];
 _has_attr 'bytes',    is => 'ro', isa => Int;
 _has_attr 'mimetype', is => 'ro', isa => Maybe[Str];
 
-sub bytes_human { format_bytes( (shift)->bytes ) }
+sub bytes_human { 
+  my $str = format_bytes( (shift)->bytes );
+  $str .= 'B' if ($str =~ /^\d+$/); # Always show unit, even when <1K
+  $str
+}
 
 has 'mime_type', is => 'ro', lazy => 1, default => sub {
   my $self = shift;
