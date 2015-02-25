@@ -8,6 +8,8 @@ use warnings;
 use Moo;
 use Types::Standard qw(:all);
 
+use DateTime;
+
 has 'driver', is => 'ro', isa => ConsumerOf['Rapi::Fs::Role::Driver'], required => 1;
 has 'path',   is => 'ro', isa => Str, required => 1;
 has 'name',   is => 'ro', isa => Str, required => 1;
@@ -33,12 +35,32 @@ _has_attr 'mtime',       is => 'ro', isa => Int;
 _has_attr 'parent_path', is => 'ro', isa => Maybe[Str];
 _has_attr 'parent',      is => 'ro', isa => Maybe[InstanceOf['Rapi::Fs::Dir']];
 
+has 'mtime_dt', is => 'ro', lazy => 1, default => sub {
+  my $self = shift;
+  my $epoch = $self->mtime or return undef;
+  DateTime->from_epoch( epoch => $epoch, time_zone => 'local' )
+}, isa => Maybe[InstanceOf['DateTime']];
+
+has 'ctime_dt', is => 'ro', lazy => 1, default => sub {
+  my $self = shift;
+  my $epoch = $self->ctime or return undef;
+  DateTime->from_epoch( epoch => $epoch, time_zone => 'local' )
+}, isa => Maybe[InstanceOf['DateTime']];
+
+has 'atime_dt', is => 'ro', lazy => 1, default => sub {
+  my $self = shift;
+  my $epoch = $self->atime or return undef;
+  DateTime->from_epoch( epoch => $epoch, time_zone => 'local' )
+}, isa => Maybe[InstanceOf['DateTime']];
+
 
 # These are extra, *optional* attrs which might be available in driver and/or set by user:
 _has_attr $_ for qw(
   iconCls
   cls
   view_url
+  ctime
+  atime
 );
 
 

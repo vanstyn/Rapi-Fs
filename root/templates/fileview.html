@@ -63,7 +63,10 @@
         [% File.bytes %] bytes &nbsp;&nbsp;
       </td>
     </tr>
-    <tr><th>mtime</th>            <td>[% File.mtime %]</td></tr>
+    <tr><th>Created</th>   <td>[% File.ctime_dt.strftime('%b %e, %Y &nbsp; <span class="grey">%l:%M %p</span>') %]</td></tr>
+    <tr><th>Modified</th>  <td>[% File.mtime_dt.strftime('%b %e, %Y &nbsp; <span class="grey">%l:%M %p</span>') %]</td></tr>
+    <tr><th>Accessed</th>  <td>[% File.atime_dt.strftime('%b %e, %Y &nbsp; <span class="grey">%l:%M %p</span>') %]</td></tr>
+    
   </table>
   
   [% IF File.open_url && File.mime_type == 'image' %]

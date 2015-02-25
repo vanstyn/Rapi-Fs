@@ -141,6 +141,18 @@ sub node_get_mtime {
   $stat->mtime
 }
 
+sub node_get_ctime {
+  my ($self, $path) = @_;
+  my $stat = $self->_get_node_stat($path) or return undef;
+  $stat->ctime
+}
+
+sub node_get_atime {
+  my ($self, $path) = @_;
+  my $stat = $self->_get_node_stat($path) or return undef;
+  $stat->atime
+}
+
 
 sub node_get_iconCls {
   my ($self, $path) = @_;
