@@ -58,11 +58,19 @@ sub _apply_node_view_url {
     : $self->b64_encode($mount);
     
   $Node->view_url( $self->suburl($enc_path) );
-  $Node->download_url( join('',
-    $Node->view_url,
-    '?method=download',
-    '&__no_hashnav_redirect=1'
-  )) unless ($Node->is_dir);
+  
+  unless ($Node->is_dir) {
+    $Node->download_url( join('',
+      $Node->view_url,
+      '?method=download',
+      '&__no_hashnav_redirect=1'
+    ));
+    $Node->open_url( join('',
+      $Node->view_url,
+      '?method=open',
+      '&__no_hashnav_redirect=1'
+    ));
+  }
   
   $enc_path
 }
@@ -150,12 +158,15 @@ around 'content' => sub {
       my $c = $self->c;
       my $meth = $c->req->params->{method} || 'view';
       
-      if($meth eq 'download') {
+      if($meth eq 'download' || $meth eq 'open') {
         my $fh = $Node->fh or die usererr "Failed to obtain filehandle!";
         
         my $h = $c->res->headers;
 
-        $h->header('Content-disposition' => join('','attachment; filename="',$Node->name,'"'));
+        $h->header(
+          'Content-disposition' => join('','attachment; filename="',$Node->name,'"')
+        ) if($meth eq 'download');
+        
         $h->content_type( $Node->content_type );
         $h->content_length( $Node->bytes );
         $h->last_modified( $Node->mtime || time );

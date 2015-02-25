@@ -4,7 +4,7 @@
 
 <style>
   .rapi-fs-fileview .grey {
-    color:grey;
+    color:grey !important;
     font-size:0.9em;
     font-weight: normal;
   }
@@ -19,46 +19,55 @@
   .rapi-fs-fileview .with-icon {
     display: inline;
   }
+  .rapi-fs-fileview img {
+    max-width: 100%;
+    padding: 10px;
+  }
 </style>
 
 <title class="[% File.iconCls %]">[% File.name %]</title>
 
 <div class="rapi-fs-fileview" style="font-size:12px;">
 
-<h4>
-  <span class="bigger">[% File.name %]</span>&nbsp;
-  <i><span class="grey">([% File.bytes_human %])</span></i>&nbsp;
-  <a 
-        class="with-icon ra-icon-bullet-disk download"
-        href="[% File.download_url %]"
-        target="_self"
-      >Save</a>
-</h4>
+  <h4>
+    <span class="bigger">[% File.name %]</span>&nbsp;
+    <i><span class="grey">([% File.bytes_human %])</span></i>&nbsp;
+    <a 
+          class="with-icon ra-icon-bullet-disk download"
+          href="[% File.download_url %]"
+          target="_self"
+        >Save As...</a>
+  </h4>
 
-<table class="r-simple-table">
-  <tr>
-    <th>Parent Folder</th>
-    <td>
-      <a 
-        class="with-icon ra-icon-folder-up bigger"
-        href="[% File.parent.view_url %]"
-      >[% File.parent.name %]</a>&nbsp;&nbsp;
-      <span class="grey">([% File.driver.name _ '/' _ File.parent.path %])</span>
-    </td>
-  </tr>
-  <tr>
-    <th>Filename</th>
-    <td>
-      <span class="with-icon [% File.iconCls %]">[% File.name %]</span>&nbsp;&nbsp;
-    </td>
-  </tr>
-  <tr>
-    <th>Size</th>
-    <td>
-      [% File.bytes %] bytes &nbsp;&nbsp;
-    </td>
-  </tr>
-  <tr><th>mtime</th>            <td>[% File.mtime %]</td></tr>
-</table>
-</div>
+  <table class="r-simple-table">
+    <tr>
+      <th>Parent Folder</th>
+      <td>
+        <a 
+          class="with-icon ra-icon-folder-up bigger"
+          href="[% File.parent.view_url %]"
+        >[% File.parent.name %]</a>&nbsp;&nbsp;
+        <span class="grey">([% File.driver.name _ '/' _ File.parent.path %])</span>
+      </td>
+    </tr>
+    <tr>
+      <th>Filename</th>
+      <td>
+        <span class="with-icon [% File.iconCls %]">[% File.name %]</span>&nbsp;&nbsp;
+        <span class="ra-hex-string grey">[% File.content_type %]</span>
+      </td>
+    </tr>
+    <tr>
+      <th>Size</th>
+      <td>
+        [% File.bytes %] bytes &nbsp;&nbsp;
+      </td>
+    </tr>
+    <tr><th>mtime</th>            <td>[% File.mtime %]</td></tr>
+  </table>
+  
+  [% IF File.open_url && File.mime_type == 'image' %]
+    <img src="[% File.open_url %]">
+  [% END %]
+
 </div>

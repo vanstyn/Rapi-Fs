@@ -57,6 +57,7 @@ has 'content_type', is => 'ro', lazy => 1, default => sub {
 # These are extra, *optional* attrs which might be available in driver and/or set by user:
 _has_attr $_ for qw(
   download_url
+  open_url
 );
 
 
