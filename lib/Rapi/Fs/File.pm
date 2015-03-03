@@ -65,6 +65,14 @@ has 'content_type', is => 'ro', lazy => 1, default => sub {
   $ct
 }, isa => Str;
 
+has 'file_ext', is => 'ro', lazy => 1, default => sub {
+  my $self = shift;
+  return undef unless ($self->name);
+  my @parts = split(/\./,$self->name);
+  return undef unless (scalar @parts > 1);
+  return lc(pop @parts);
+}, isa => Maybe[Str];
+
 
 # These are extra, *optional* attrs which might be available in driver and/or set by user:
 _has_attr $_ for qw(

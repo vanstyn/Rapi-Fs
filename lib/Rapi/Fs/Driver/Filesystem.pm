@@ -182,10 +182,24 @@ sub node_get_iconCls {
 sub node_get_mimetype {
   my ($self, $path) = @_;
   my $Node = $self->get_node($path) or return undef;
-  my $mt = mimetype( $Node->driver_stash->{path_obj}->stringify ) or return undef;
-  $mt eq 'application/octet-stream' && $Node->is_text 
+  my $type = mimetype( $Node->driver_stash->{path_obj}->stringify ) or return undef;
+  
+  # type overrides for places where File::MimeInfo::Magic is known to guess wrong
+  # (logic copied from Catalyst::Controller::SimpleCAS)
+  if($type eq 'application/vnd.ms-powerpoint' || $type eq 'application/zip') {
+    my $ext = $Node->file_ext;
+    $type = 
+      $ext eq 'doc'  ? 'application/msword' :
+      $ext eq 'xls'  ? 'application/vnd.ms-excel' :
+      $ext eq 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
+      $ext eq 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
+      $ext eq 'pptx' ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
+    $type;
+  }
+  
+  $type eq 'application/octet-stream' && $Node->is_text 
     ? 'text/plain'
-    : $mt
+    : $type
 }
 
 sub node_get_is_text {
