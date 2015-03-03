@@ -169,11 +169,8 @@ sub node_get_iconCls {
       : 'ra-icon-folder'
   }
   else {
-    return 'ra-icon-document-14x14-light' if ($Node->name =~ /^\./);
-    
-    my @parts = split(/\./,$Node->name);
-    my $ext = scalar(@parts) > 1 ? pop @parts : undef;
-    
+    return 'ra-icon-document-14x14-light' if ($Node->name =~ /^\./); # starts with '.'
+    my $ext = $Node->file_ext;
     return $ext ? "filelink $ext" : 'ra-icon-page-white-14x14';
   }
 }
