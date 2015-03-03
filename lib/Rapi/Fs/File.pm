@@ -10,6 +10,8 @@ extends 'Rapi::Fs::Node';
 use Types::Standard qw(:all);
 use Number::Bytes::Human qw(format_bytes parse_bytes);
 
+use RapidApp::Util qw(:all);
+
 sub _has_attr {
   my $attr = shift;
   has $attr, is => 'rw', isa => Maybe[Str], lazy => 1,
@@ -47,21 +49,50 @@ has 'content_type', is => 'ro', lazy => 1, default => sub {
   my ($top,$sub) = ($self->mime_type,$self->mime_subtype);
   
   # Default, generic type:
-  ($top,$sub) = (qw/application octet-stream/) unless ($top && $sub);
+  unless ($top && $sub) {
+    ($top,$sub) = $self->is_text 
+      ? (qw/text plain/)      
+      : (qw/application octet-stream/) 
+  }
   
   my $ct = join('/',$top,$sub);
   
-  # TODO: get real encoding
-  $ct = join('; ',$ct,'charset=utf-8') if ($top eq 'text');
+  $ct = join('',$ct,'; charset=',$self->text_encoding) if (
+    $self->is_text
+    && $self->text_encoding
+  );
   
   $ct
 }, isa => Str;
+
+
+# TODO: this should probably be implemented in the FileTree (the "viewer" code)
+has 'render_content_type', is => 'ro', lazy => 1, default => sub {
+  my $self = shift;
+
+  my $ct = $self->content_type;
+
+  # Safe render as-is:
+  return $ct if (
+        $ct =~ /^image\//
+    ||  $ct =~ /^video\//
+    ||  $ct =~ /^text\/html/
+    ||  $ct =~ /^application\/pdf/
+  );
+
+  $self->is_text && $self->text_encoding 
+    ? join('','text/plain; charset=',$self->text_encoding) 
+    : undef
+}, isa => Maybe[Str];
+
 
 
 # These are extra, *optional* attrs which might be available in driver and/or set by user:
 _has_attr $_ for qw(
   download_url
   open_url
+  is_text
+  text_encoding
 );
 
 

@@ -164,12 +164,18 @@ around 'content' => sub {
         my $fh = $Node->fh or die usererr "Failed to obtain filehandle!";
         
         my $h = $c->res->headers;
-
-        $h->header(
-          'Content-disposition' => join('','attachment; filename="',$Node->name,'"')
-        ) if($meth eq 'download');
         
-        $h->content_type( $Node->content_type );
+        if($meth eq 'open') {
+          $Node->render_content_type 
+            ? $h->content_type( $Node->render_content_type )
+            : $meth = 'download'
+        }
+        
+        if($meth eq 'download') {
+          $h->header('Content-disposition' => join('','attachment; filename="',$Node->name,'"'));
+          $h->content_type( $Node->content_type );
+        }
+        
         $h->content_length( $Node->bytes );
         $h->last_modified( $Node->mtime || time );
         $h->expires(time());
@@ -187,6 +193,8 @@ around 'content' => sub {
       
         $c->stash->{template}   = 'fileview.html';
         $c->stash->{RapiFsFile} = $Node;
+        
+        $Node->render_content_type;
         
         return $c->detach( $c->view('RapidApp::Template') );
       }

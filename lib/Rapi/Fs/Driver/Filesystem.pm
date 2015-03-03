@@ -13,6 +13,7 @@ use RapidApp::Util ':all';
 use Path::Class qw( file dir );
 use Scalar::Util qw( blessed );
 use File::MimeInfo::Magic;
+use Encode::Guess;
 
 use Rapi::Fs::File;
 use Rapi::Fs::Dir;
@@ -126,7 +127,9 @@ sub node_get_parent_path {
 sub node_get_fh {
   my ($self, $path) = @_;
   my $Node = $self->get_node($path) or return undef;
-  $Node->driver_stash->{path_obj}->openr()
+  #$Node->driver_stash->{path_obj}->openr()
+  
+  $Node->driver_stash->{path_obj}->open("<:raw")
 }
 
 sub node_get_bytes {
@@ -179,8 +182,36 @@ sub node_get_iconCls {
 sub node_get_mimetype {
   my ($self, $path) = @_;
   my $Node = $self->get_node($path) or return undef;
-  mimetype( $Node->driver_stash->{path_obj}->stringify )
+  my $mt = mimetype( $Node->driver_stash->{path_obj}->stringify ) or return undef;
+  $mt eq 'application/octet-stream' && $Node->is_text 
+    ? 'text/plain'
+    : $mt
 }
 
+sub node_get_is_text {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  $Node->text_encoding ? 1 : 0
+}
+
+
+sub node_get_text_encoding {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  
+  # Consider just the first 4K bytes for the encoding:
+  my $buf;
+  my $rFh = $Node->driver_stash->{path_obj}->open("<:raw");
+  $rFh->read($buf,4*1024);
+  $rFh->close;
+  
+  my $decoder = Encode::Guess->guess($buf);
+  return undef unless (ref $decoder);
+  
+  my $encoding = $decoder->name;
+  
+  # Binary files seem to get seen as UTF-32, so for now we're excluding it:
+  $encoding =~ /^UTF\-32/i ? undef : $encoding
+}
 
 1;
