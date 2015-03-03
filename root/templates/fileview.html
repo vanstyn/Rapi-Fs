@@ -7,6 +7,9 @@
 
 
 <style>
+  .rapi-fs-fileview table.r-simple-table tr * {
+    white-space: nowrap;
+  }
   .rapi-fs-fileview .grey {
     color:grey !important;
     font-size:0.9em;
@@ -22,10 +25,6 @@
   }
   .rapi-fs-fileview .with-icon {
     display: inline;
-  }
-  .rapi-fs-fileview img {
-    max-width: 100%;
-    padding: 10px;
   }
   .rapi-fs-fileview tr.vert {
     font-size: 0.9em;
@@ -45,7 +44,20 @@
     top: 200px;
     bottom: 5px;
     left: 5px;
+    right: 25px;
+    min-height: 200px;
+    min-width: 400px;
+  }
+  .rapi-fs-fileview div.file-content div.img-wrap {
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 5px;
     right: 5px;
+  }
+  .rapi-fs-fileview div.file-content div.img-wrap img {
+    max-width: 100%;
+    max-height: 100%;
   }
   .rapi-fs-fileview div.file-content iframe {
     overflow: auto;
@@ -71,7 +83,7 @@
 
   <table class="r-simple-table">
     <tr>
-      <th>Parent Folder</th>
+      <th>Folder</th>
       <td colspan=4>
         <a 
           class="with-icon ra-icon-folder-up bigger"
@@ -81,7 +93,7 @@
       </td>
     </tr>
     <tr>
-      <th>Filename</th>
+      <th>File</th>
       <td colspan=4>
         <span class="with-icon [% File.iconCls %]">[% File.name %]</span>&nbsp;&nbsp;
         <span class="ra-hex-string grey">[% File.content_type %]</span>
@@ -94,13 +106,15 @@
     
   </table>
   
-  [% IF File.open_url %]
+  [% IF File.open_url && File.render_content_type %]
     <h5 style="padding-top:8px;">Preview:</h5>
     <div class="file-content">
   
     [% IF File.mime_type == 'image' %]
-      <img src="[% File.open_url %]">
-    [% ELSIF File.mime_type == 'text' %]
+      <div class="img-wrap">
+        <img src="[% File.open_url %]">
+      </div>
+    [% ELSE %]
       <iframe 
         class="ux-mif" 
         frameborder="0"
