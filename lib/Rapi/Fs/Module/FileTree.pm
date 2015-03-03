@@ -18,6 +18,9 @@ use RapidApp::Util qw(:all);
 has 'fetch_nodes_deep', is => 'ro', isa => Bool, default => sub {0};
 has 'use_contextmenu',  is => 'ro', isa => Bool, default => sub {1};
 
+# Max file size to attempt to render
+has 'max_render_bytes', is => 'ro', isa => Int, default => sub { 4*1024*1024 }; # 4MB
+
 
 sub BUILD {
   my $self = shift;
@@ -52,6 +55,25 @@ sub fetch_nodes {
 }
 
 
+sub _get_render_content_type {
+  my ($self, $Node) = @_;
+  return undef if ($Node->is_dir);
+
+  my $ct = $Node->content_type;
+
+  # Safe render as-is:
+  return $ct if (
+        $ct =~ /^image\//
+    ||  $ct =~ /^video\//
+    ||  $ct =~ /^text\/html/
+    ||  $ct =~ /^application\/pdf/
+  );
+
+  $Node->is_text && $Node->text_encoding 
+    ? join('','text/plain; charset=',$Node->text_encoding) 
+    : undef
+}
+
 sub _apply_node_view_url {
   my ($self, $Node, $mount) = @_;
   
@@ -63,7 +85,10 @@ sub _apply_node_view_url {
   
   unless ($Node->is_dir) {
     $Node->download_url( join('',$Node->view_url,'?method=download'));
-    $Node->open_url( join('',$Node->view_url,'?method=open'));
+    $Node->open_url( join('',$Node->view_url,'?method=open')) if (
+         $Node->bytes < $self->max_render_bytes
+      && $self->_get_render_content_type( $Node )
+    )
   }
   
   $enc_path
@@ -166,9 +191,8 @@ around 'content' => sub {
         my $h = $c->res->headers;
         
         if($meth eq 'open') {
-          $Node->render_content_type 
-            ? $h->content_type( $Node->render_content_type )
-            : $meth = 'download'
+          my $ct = $self->_get_render_content_type( $Node );
+          $ct ? $h->content_type( $ct ) : $meth = 'download'
         }
         
         if($meth eq 'download') {
@@ -190,12 +214,10 @@ around 'content' => sub {
       
         $self->_apply_node_view_url($Node,$mount);
         $self->_apply_node_view_url($Node->parent,$mount);
-      
+
         $c->stash->{template}   = 'fileview.html';
         $c->stash->{RapiFsFile} = $Node;
-        
-        $Node->render_content_type;
-        
+
         return $c->detach( $c->view('RapidApp::Template') );
       }
       else {

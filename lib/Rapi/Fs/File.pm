@@ -48,43 +48,22 @@ has 'content_type', is => 'ro', lazy => 1, default => sub {
   
   my ($top,$sub) = ($self->mime_type,$self->mime_subtype);
   
-  # Default, generic type:
+  # Default, generic text and binary types:
   unless ($top && $sub) {
     ($top,$sub) = $self->is_text 
       ? (qw/text plain/)      
       : (qw/application octet-stream/) 
   }
-  
+
   my $ct = join('/',$top,$sub);
-  
+
   $ct = join('',$ct,'; charset=',$self->text_encoding) if (
-    $self->is_text
+       $self->is_text
     && $self->text_encoding
   );
-  
+
   $ct
 }, isa => Str;
-
-
-# TODO: this should probably be implemented in the FileTree (the "viewer" code)
-has 'render_content_type', is => 'ro', lazy => 1, default => sub {
-  my $self = shift;
-
-  my $ct = $self->content_type;
-
-  # Safe render as-is:
-  return $ct if (
-        $ct =~ /^image\//
-    ||  $ct =~ /^video\//
-    ||  $ct =~ /^text\/html/
-    ||  $ct =~ /^application\/pdf/
-  );
-
-  $self->is_text && $self->text_encoding 
-    ? join('','text/plain; charset=',$self->text_encoding) 
-    : undef
-}, isa => Maybe[Str];
-
 
 
 # These are extra, *optional* attrs which might be available in driver and/or set by user:
