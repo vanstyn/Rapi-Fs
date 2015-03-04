@@ -37,6 +37,9 @@ sub fetch_nodes {
   
   return $self->mounts_nodes if ($node eq 'root');
   
+  # Check if this is the root node (i.e. a local root of a sub-dir)
+  my $loc_root = $self->c->req->params->{root_node} ? 1 : 0;
+
   my ($prefix, $enc_path) = split(/\//,$node,2);
   die "Malformed node path '$node'" unless ($prefix eq 'root');
   
@@ -51,7 +54,10 @@ sub fetch_nodes {
     $a->name cmp $b->name
   } $Mount->node_get_subnodes($path || '/');
   
-  return [ map { $self->_fs_to_treenode($_,$mount) } @dirs, @files ];
+  return [
+    ( $loc_root ? $self->_folder_up_treenode($path,$mount) : () ), 
+    map { $self->_fs_to_treenode($_,$mount) } @dirs, @files 
+  ];
 }
 
 
@@ -129,6 +135,26 @@ sub mounts_nodes {
 }
 
 
+sub _folder_up_treenode {
+  my ($self, $path, $mount) = @_;
+  
+  my $Mount = $self->get_mount($mount);
+  my $Node = $Mount->get_node($path);
+  my $Parent = $Node->parent or return ();
+  
+  my $text = '<span class="blue-text-code">..</span>';
+  return {
+    %{ $self->prepare_node( $self->_fs_to_treenode($Parent,$mount) ) },
+    name     => $text,
+    text     => $text,
+    iconCls  => 'ra-icon-folder-up',
+    expanded => 0,
+    loaded   => 1,
+    leaf     => 1
+  }
+}
+
+
 around 'content' => sub {
   my ($orig,$self,@args) = @_;
   
@@ -146,31 +172,14 @@ around 'content' => sub {
     );
     
     if($Node->is_dir) {
-    
-      my $children = $self->call_fetch_nodes( join('/','root',$enc_path) );
-      
-      if(my $Parent = $Node->parent) {
-        my $text = '<span class="blue-text-code">..</span>';
-        unshift @$children, {
-          %{ $self->prepare_node( $self->_fs_to_treenode($Parent,$mount) ) },
-          name     => $text,
-          text     => $text,
-          iconCls  => 'ra-icon-folder-up',
-          expanded => 0,
-          loaded   => 1,
-          leaf     => 1
-        };
-      }
-      
-      # Set the top-level children to the nodes of the supplied path:
       $self->apply_extconfig(
         tabIconCls => $Node->iconCls || 'ra-icon-folder',
         root => {
           %{ $self->root_node },
-          children => $children
+          # Set the root node to the local path:
+          id => join('/','root',$enc_path)
         }
       );
-    
     }
     else {
       

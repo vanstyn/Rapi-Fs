@@ -2,7 +2,7 @@ package Rapi::Fs;
 use Moose;
 use namespace::autoclean;
 
-use RapidApp 1.0010_03;
+use RapidApp 1.0010_04;
 
 use Catalyst qw/
     -Debug
@@ -25,8 +25,8 @@ my $mounts = [
     args => '/root'
   }),
   Rapi::Fs::Driver::Filesystem->new({
-    name => 'proc',
-    args => '/proc'
+    name => 'usr-lib-perl5',
+    args => '/usr/lib/perl5'
   })
 ];
 sub _get_driver_mounts { $mounts }
