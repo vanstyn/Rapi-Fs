@@ -5,7 +5,7 @@ use warnings;
 
 # ABSTRACT: Role for modules which use "Mounts"
 
-use Moo::Role;
+use Moose::Role;
 use Types::Standard qw(:all);
 
 use RapidApp::Util qw(:all);

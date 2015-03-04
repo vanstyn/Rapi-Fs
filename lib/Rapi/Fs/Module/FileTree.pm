@@ -5,7 +5,7 @@ use warnings;
 
 # ABSTRACT: ExtJS tree for Rapi::Fs::Driver filesystems
 
-use Moo;
+use Moose;
 extends 'RapidApp::Module::NavTree';
 with 'Rapi::Fs::Module::Role::Mounts';
 
