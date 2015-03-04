@@ -29,6 +29,9 @@ sub BUILD {
     tabTitle   => 'File Tree',
     tabIconCls => 'ra-icon-folders'
   );
+  
+  $self->add_plugin('apptree-serverfilter');
+  
 }
 
 
@@ -39,6 +42,7 @@ sub fetch_nodes {
   
   # Check if this is the root node (i.e. a local root of a sub-dir)
   my $loc_root = $self->c->req->params->{root_node} ? 1 : 0;
+  delete $self->c->req->params->{root_node} if ($loc_root);
 
   my ($prefix, $enc_path) = split(/\//,$node,2);
   die "Malformed node path '$node'" unless ($prefix eq 'root');
@@ -54,9 +58,25 @@ sub fetch_nodes {
     $a->name cmp $b->name
   } $Mount->node_get_subnodes($path || '/');
   
+  my @nodes = (@dirs, @files);
+  
+  # prelim proof-of-concept:
+  my $recurse = 0;
+  if (my $search = $self->c->req->params->{search}) {
+    @files = grep {
+      $_->name =~ /\Q${search}\E/i
+    } @files;
+    $recurse = $search;
+    
+    local $self->{_recur_depth} = $self->{_recur_depth} || 0;
+    $self->{_recur_depth}++;
+    $recurse = 0 if ($self->{_recur_depth} > $self->max_recursive_fetch_depth);
+  }
+  
+  
   return [
     ( $loc_root ? $self->_folder_up_treenode($path,$mount) : () ), 
-    map { $self->_fs_to_treenode($_,$mount) } @dirs, @files 
+    map { $self->_fs_to_treenode($_,$mount,$recurse) } @dirs, @files
   ];
 }
 
@@ -101,12 +121,13 @@ sub _apply_node_view_url {
 }
 
 sub _fs_to_treenode {
-  my ($self, $Node, $mount) = @_;
+  my ($self, $Node, $mount, $recurse) = @_;
   
   my $enc_path = $self->_apply_node_view_url($Node,$mount);
+  my $id = join('/','root',$enc_path);
 
-  return {
-    id       => join('/','root',$enc_path),
+  my $treenode = {
+    id       => $id,
     name     => $Node->name,
     text     => $Node->name,
     leaf     => $Node->is_dir ? 0 : 1,
@@ -114,7 +135,27 @@ sub _fs_to_treenode {
     expanded => $Node->is_dir ? 0 : 1,
     url      => $Node->view_url,
     $Node->is_dir ? () : ( iconCls => $Node->iconCls )
+  };
+  
+  if ($Node->is_dir && $recurse) {
+    my $children = $self->fetch_nodes($id);
+    
+    if (scalar(@$children) > 0) {
+      delete $treenode->{expanded};
+      $treenode->{expand} = \1 ;
+    }
+    else {
+      # Prune empty unless
+      return () unless ($Node->name =~ /\Q${recurse}\E/i);
+      $treenode->{loaded} = \1;
+      $treenode->{expanded} = \1;
+      $treenode->{iconCls} = 'ra-icon-folder';
+    }
+    
+    $treenode->{children} = $children;
   }
+  
+  return $treenode;
 }
 
 
@@ -139,7 +180,7 @@ sub _folder_up_treenode {
   my ($self, $path, $mount) = @_;
   
   my $Mount = $self->get_mount($mount);
-  my $Node = $Mount->get_node($path);
+  my $Node = $Mount->get_node($path) or return ();
   my $Parent = $Node->parent or return ();
   
   my $text = '<span class="blue-text-code">..</span>';
@@ -168,7 +209,8 @@ around 'content' => sub {
     $self->apply_extconfig(
       tabTitle => $Node->path eq '/' ? $mount : $Node->name,
       autoScroll => 1,
-      border => 1
+      border => 1,
+      setup_tbar => 1
     );
     
     if($Node->is_dir) {
