@@ -25,6 +25,7 @@
   }
   .rapi-fs-fileview .with-icon {
     display: inline;
+    border-bottom: medium none;
   }
   .rapi-fs-fileview tr.vert {
     font-size: 0.9em;
@@ -95,7 +96,12 @@
     <tr>
       <th>File</th>
       <td colspan=4>
-        <span class="with-icon [% File.iconCls %]">[% File.name %]</span>&nbsp;&nbsp;
+        <a 
+          class="with-icon [% File.iconCls %]"
+          href="[% File.download_url %]"
+          target="_self"
+          alt="Save File"
+        >[% File.name %]</a>&nbsp;&nbsp;
         <span class="ra-hex-string grey">[% File.content_type %]</span>
       </td>
     </tr>
