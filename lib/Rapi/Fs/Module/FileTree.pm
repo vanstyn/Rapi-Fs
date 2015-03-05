@@ -22,6 +22,7 @@ has 'use_contextmenu',  is => 'ro', isa => Bool, default => sub {1};
 has 'max_render_bytes', is => 'ro', isa => Int, default => sub { 4*1024*1024 }; # 4MB
 
 has 'tree_search_timeout', is => 'ro', isa => Int, default => sub { 30 };
+has 'max_nodes_per_fetch', is => 'ro', isa => Int, default => sub { 2000 };
 
 
 sub BUILD {
@@ -36,18 +37,21 @@ sub BUILD {
   
 }
 
+around call_fetch_nodes => sub {
+  my ($orig, $self, @args) = @_;
+  
+  local $self->{_nodes_fetched}     = $self->{_nodes_fetched}     // 0;
+  local $self->{_max_nodes_reached} = $self->{_max_nodes_reached} // 0;
+  local $self->{_tree_search_start} = $self->{_tree_search_start} || time;
+  
+  $self->$orig(@args)
+};
 
 sub fetch_nodes {
   my ($self, $node) = @_;
   
   return $self->mounts_nodes if ($node eq 'root');
   
-  local $self->{_tree_search_start} = $self->{_tree_search_start} || time;
-  
-  # Check if this is the root node (i.e. a local root of a sub-dir)
-  my $loc_root = $self->c->req->params->{root_node} ? 1 : 0;
-  delete $self->c->req->params->{root_node} if ($loc_root);
-
   my ($prefix, $enc_path) = split(/\//,$node,2);
   die "Malformed node path '$node'" unless ($prefix eq 'root');
   
@@ -55,14 +59,17 @@ sub fetch_nodes {
   
   my $Mount = $self->get_mount($mount);
   
+  # Check if this is the root node (i.e. a local root of a sub-dir)
+  my $loc_root = $self->c->req->params->{root_node} ? 1 : 0;
+  delete $self->c->req->params->{root_node} if ($loc_root);
+  my @items = ( $loc_root ? $self->_folder_up_treenode($path,$mount) : () );
+  
   my @dirs  = ();
   my @files = ();
   
   $_->is_dir ? push @dirs, $_ : push @files, $_ for sort {
     $a->name cmp $b->name
   } $Mount->node_get_subnodes($path || '/');
-  
-  my @nodes = (@dirs, @files);
   
   # prelim proof-of-concept:
   my $recurse = 0;
@@ -76,23 +83,23 @@ sub fetch_nodes {
     $self->{_recur_depth}++;
     $recurse = 0 if ($self->{_recur_depth} > $self->max_recursive_fetch_depth);
     
-    if($recurse && (time - $self->{_tree_search_start}) >= $self->tree_search_timeout) {
+    if((time - $self->{_tree_search_start}) >= $self->tree_search_timeout) {
       $recurse = 0;
       $self->c->set_response_warning({
         title => 'Search timeout exceeded',
         msg => join('',
           'The search timeout (',$self->tree_search_timeout,' secs) was reached before ',
-          'traversing all sub-directories -- only matches found so far are shown. Try ',
-          'searching on a smaller directory or increase "tree_search_timeout"'
+          'traversing all sub-directories -- only matches found so far (',$self->{_nodes_fetched}, 
+          ') are shown. Try searching on a smaller directory or increase "tree_search_timeout"'
         )
-      }) if (scalar(@dirs) > 0); #<-- only relevent if there are more sub-dirs 
+      });
+      $self->{_max_nodes_reached} = 1;
     }
     $self->{_recur_depth} = $self->max_recursive_fetch_depth + 1; #<-- so other chains will stop also
   }
   
-  
   return [
-    ( $loc_root ? $self->_folder_up_treenode($path,$mount) : () ), 
+    @items,
     map { $self->_fs_to_treenode($_,$mount,$recurse) } @dirs, @files
   ];
 }
@@ -140,6 +147,20 @@ sub _apply_node_view_url {
 sub _fs_to_treenode {
   my ($self, $Node, $mount, $recurse) = @_;
   
+  return () if ($self->{_max_nodes_reached});
+  if($self->{_nodes_fetched} >= $self->max_nodes_per_fetch) {
+    $self->{_max_nodes_reached} = 1;
+    $self->c->set_response_warning({
+      title => 'Max results reached',
+      msg => join('',
+        'Too many results -- only the first ',$self->{_nodes_fetched}, ' items shown'
+      )
+    });
+    return ();
+  }
+  
+  $self->{_nodes_fetched}++;
+  
   my $enc_path = $self->_apply_node_view_url($Node,$mount);
   my $id = join('/','root',$enc_path);
 
@@ -162,8 +183,11 @@ sub _fs_to_treenode {
       $treenode->{expand} = \1 ;
     }
     else {
-      # Prune empty unless
-      return () unless ($Node->name =~ /\Q${recurse}\E/i);
+      # Prune empty unless the dir name matches the search:
+      unless ($Node->name =~ /\Q${recurse}\E/i) {
+        $self->{_nodes_fetched}--;
+        return ();
+      }
       $treenode->{loaded} = \1;
       $treenode->{expanded} = \1;
       $treenode->{iconCls} = 'ra-icon-folder';
@@ -199,6 +223,9 @@ sub _folder_up_treenode {
   my $Mount = $self->get_mount($mount);
   my $Node = $Mount->get_node($path) or return ();
   my $Parent = $Node->parent or return ();
+  
+  # This node doesn't count against our quota:
+  $self->{_nodes_fetched}--;
   
   my $text = '<span class="blue-text-code">..</span>';
   return {
