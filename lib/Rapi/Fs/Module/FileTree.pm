@@ -21,6 +21,8 @@ has 'use_contextmenu',  is => 'ro', isa => Bool, default => sub {1};
 # Max file size to attempt to render
 has 'max_render_bytes', is => 'ro', isa => Int, default => sub { 4*1024*1024 }; # 4MB
 
+has 'tree_search_timeout', is => 'ro', isa => Int, default => sub { 30 };
+
 
 sub BUILD {
   my $self = shift;
@@ -39,6 +41,8 @@ sub fetch_nodes {
   my ($self, $node) = @_;
   
   return $self->mounts_nodes if ($node eq 'root');
+  
+  local $self->{_tree_search_start} = $self->{_tree_search_start} || time;
   
   # Check if this is the root node (i.e. a local root of a sub-dir)
   my $loc_root = $self->c->req->params->{root_node} ? 1 : 0;
@@ -71,6 +75,19 @@ sub fetch_nodes {
     local $self->{_recur_depth} = $self->{_recur_depth} || 0;
     $self->{_recur_depth}++;
     $recurse = 0 if ($self->{_recur_depth} > $self->max_recursive_fetch_depth);
+    
+    if($recurse && (time - $self->{_tree_search_start}) >= $self->tree_search_timeout) {
+      $recurse = 0;
+      $self->c->set_response_warning({
+        title => 'Search timeout exceeded',
+        msg => join('',
+          'The search timeout (',$self->tree_search_timeout,' secs) was reached before ',
+          'traversing all sub-directories -- only matches found so far are shown. Try ',
+          'searching on a smaller directory or increase "tree_search_timeout"'
+        )
+      }) if (scalar(@dirs) > 0); #<-- only relevent if there are more sub-dirs 
+    }
+    $self->{_recur_depth} = $self->max_recursive_fetch_depth + 1; #<-- so other chains will stop also
   }
   
   
