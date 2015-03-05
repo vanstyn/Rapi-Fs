@@ -6,7 +6,7 @@ use RapidApp 1.0010_04;
 
 use Catalyst qw/
     -Debug
-    RapidApp::RapidDbic
+    RapidApp::TabGui
 /;
 
 extends 'Catalyst';
