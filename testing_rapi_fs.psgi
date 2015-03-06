@@ -2,22 +2,21 @@ use strict;
 use warnings;
 
 use Rapi::Fs;
-use Rapi::Fs::Driver::Filesystem;
 
 # -----------------
-# Temporary/just for development -- will be replaced with a real system for
-# configuring and loading mounts later on ....
+# Example mounts:
 my $mounts = [
-  Rapi::Fs::Driver::Filesystem->new({
-    name => 'root-home',
-    args => '/root'
-  }),
-  Rapi::Fs::Driver::Filesystem->new({
-    name => 'usr-lib-perl5',
-    args => '/usr/lib/perl5'
-  })
+  {
+    driver => 'Filesystem',
+    name   => 'root-home',
+    args   => '/root'
+  },
+  {
+    driver => 'Filesystem',
+    name   => 'usr-lib-perl5',
+    args   => '/usr/lib/perl5'
+  }
 ];
-sub _get_driver_mounts { $mounts }
 #
 # -----------------
 
