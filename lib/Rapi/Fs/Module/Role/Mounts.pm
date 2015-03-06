@@ -9,11 +9,40 @@ use Moose::Role;
 use Types::Standard qw(:all);
 
 use RapidApp::Util qw(:all);
+use Module::Runtime;
 
 # From RapidApp::Module
 has 'accept_subargs',   is => 'rw', isa => Bool, default => sub {1};
 
-has 'mounts', is => 'ro', isa => ArrayRef[ConsumerOf['Rapi::Fs::Role::Driver']], required => 1;
+has 'mounts' => (
+  is  => 'ro', required => 1,
+  isa => (ArrayRef[ConsumerOf['Rapi::Fs::Role::Driver']])->plus_coercions(
+    ArrayRef[HashRef], \&_coerce_mounts
+  ), 
+  coerce => 1
+);
+
+sub _coerce_mounts {
+  my $mnts = $_[0];
+  if(ref $mnts && ref($mnts) eq 'ARRAY') {
+    $mnts = [ map {
+      my $mnt = $_;
+      if(ref $mnt && ref($mnt) eq 'HASH' && $mnt->{driver}) {
+        my $driver = delete $mnt->{driver};
+        if($driver =~ /^\+/) {
+          $driver =~ s/^\+//;
+        }
+        else {
+          $driver = join('::','Rapi::Fs::Driver',$driver);
+        }
+        Module::Runtime::require_module($driver);
+        $mnt = $driver->new($mnt);
+      }
+      $mnt
+    } @$mnts ];
+  }
+  $mnts
+}
 
 has '_mounts_ndx', is => 'ro', lazy => 1, init_arg => undef, default => sub {
   my $self = shift;
