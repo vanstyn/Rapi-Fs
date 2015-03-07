@@ -3,7 +3,7 @@ package Rapi::Fs;
 use strict;
 use warnings;
 
-use RapidApp 1.0010_06;
+use RapidApp 1.0010_07;
 
 use Moose;
 extends 'RapidApp::Builder';
@@ -33,6 +33,9 @@ sub _build_config {
   my $tpl_dir = join('/',$self->share_dir,'templates');
   -d $tpl_dir or die "template dir ($tpl_dir) not found; Rapi-Fs dist may not be installed properly.\n";
   
+  my $loc_assets_dir = join('/',$self->share_dir,'assets');
+  -d $loc_assets_dir or die "assets dir ($loc_assets_dir) not found; Rapi-Fs dist may not be installed properly.\n";
+  
   return {
     'RapidApp' => {
       load_modules => {
@@ -40,7 +43,8 @@ sub _build_config {
           class  => 'Rapi::Fs::Module::FileTree',
           params => { mounts => $self->mounts }
         }
-      }
+      },
+      local_assets_dir => $loc_assets_dir
     },
     'Plugin::RapidApp::TabGui' => {
       navtrees => [{
