@@ -328,7 +328,7 @@ around 'content' => sub {
         $self->_apply_node_open_url($Node,$mount);
         $self->_apply_node_open_url($Node->parent,$mount);
 
-        $c->stash->{template}   = $Node->is_link ? 'linkview.html' : 'fileview.html';
+        $c->stash->{template}   = 'fileview.html';
         $c->stash->{RapiFsFile} = $Node;
 
         return $c->detach( $c->view('RapidApp::Template') );

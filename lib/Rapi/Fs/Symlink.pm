@@ -3,14 +3,15 @@ package Rapi::Fs::Symlink;
 use strict;
 use warnings;
 
-# ABSTRACT: Object representing a file
+# ABSTRACT: Object representing a symlink
 
 use Moo;
-extends 'Rapi::Fs::Node';
+extends 'Rapi::Fs::File';
 use Types::Standard qw(:all);
 
 use RapidApp::Util qw(:all);
 
+sub is_file  { 0 }
 sub is_link  { 1 }
 
 sub _has_attr {

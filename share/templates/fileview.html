@@ -5,8 +5,9 @@
   accessed = File.atime_dt.strftime('%b %e, %Y &nbsp; <span class="grey">%l:%M %p</span>') 
 -%]
 
-[% WRAPPER view_wrapper.html %]
+<title class="[% File.iconCls %]">[% File.name %]</title>
 
+<div class="rapi-fs-fileview" style="font-size:12px;">
 
   <h4>
     <span class="bigger">[% File.name %]</span>&nbsp;
@@ -46,6 +47,20 @@
       </td>
     </tr>
     
+    [% IF File.is_link %]
+      <tr>
+        <th>Symlink</th>
+        <td colspan=4>
+          <div class="node-link-target">
+            &nbsp;<span class="arrow">&rArr;</span>
+            <span class="txt">[% File.link_target %]</span>
+            
+          </div>
+        </td>
+      </tr>
+    [% END %]
+    
+    
     <tr class="vert"><td></td><th>Size                  </th><th>Created      </th><th>Modified      </th><th>Accessed      </th></tr>
     <tr class="vert"><td></td><td>[% File.bytes %] bytes</td><td>[% created %]</td><td>[% modified %]</td><td>[% accessed %]</td></tr>
 
@@ -70,4 +85,4 @@
     </div>
   [% END %]
   
-[% END %]
+</div>

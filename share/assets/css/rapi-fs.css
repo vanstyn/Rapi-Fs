@@ -11,6 +11,24 @@
   font-style: italic;
 }
 
+div.node-link-target {
+  font-family: "Lucida Console",Monaco,monospace;
+}
+.node-link-target .arrow {
+  color:grey;
+  font-weight: normal;
+  vertical-align:middle;
+  font-size: 1.8em;
+}
+
+.node-link-target .txt {
+  color: DarkCyan ;
+  vertical-align:middle;
+  font-weight: bolder;
+  font-size: 0.9em !important;
+}
+
+
 .rapi-fs-fileview table.r-simple-table tr * {
   white-space: nowrap;
 }
