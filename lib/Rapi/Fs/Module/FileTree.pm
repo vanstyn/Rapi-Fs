@@ -133,6 +133,14 @@ sub _apply_node_view_url {
     
   $Node->view_url( $self->suburl($enc_path) );
   
+  $enc_path
+}
+
+sub _apply_node_open_url {
+  my ($self, $Node, $mount) = @_;
+  
+  my $enc_path = $self->_apply_node_view_url($Node,$mount);
+  
   unless ($Node->is_dir || $Node->is_link) {
     $Node->download_url( join('',$Node->view_url,'?method=download'));
     $Node->open_url( join('',$Node->view_url,'?method=open')) if (
@@ -315,8 +323,8 @@ around 'content' => sub {
       }
       elsif($meth eq 'view') {
       
-        $self->_apply_node_view_url($Node,$mount);
-        $self->_apply_node_view_url($Node->parent,$mount);
+        $self->_apply_node_open_url($Node,$mount);
+        $self->_apply_node_open_url($Node->parent,$mount);
 
         $c->stash->{template}   = $Node->is_link ? 'linkview.html' : 'fileview.html';
         $c->stash->{RapiFsFile} = $Node;
