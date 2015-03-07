@@ -1,0 +1,32 @@
+[% WRAPPER view_wrapper.html %]
+[% SET Link = c.stash.RapiFsFile %]
+
+  <h4>
+    <span class="bigger">[% Link.name %]</span>&nbsp;
+    <i><span class="grey">(Symlink)</span></i>&nbsp;
+  </h4>
+
+  <table class="r-simple-table">
+    <tr>
+      <th>Folder</th>
+      <td colspan=4>
+        <a 
+          class="with-icon ra-icon-folder-up bigger"
+          href="[% File.parent.view_url %]"
+        >[% Link.parent.name %]</a>&nbsp;&nbsp;
+        <span class="grey">([% Link.driver.name _ '/' _ Link.parent.path %])</span>
+      </td>
+    </tr>
+    <tr>
+      <th>Symlink</th>
+      <td colspan=4>
+        <span 
+          class="with-icon [% Link.iconCls %]"
+        >[% Link.name %]</a>&nbsp;&nbsp;
+        <span class="ra-hex-string grey">[% Link.link_target %]</span>
+      </td>
+    </tr>
+    
+  </table>
+
+[% END %]

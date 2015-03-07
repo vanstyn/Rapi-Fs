@@ -15,6 +15,7 @@ has 'path',   is => 'ro', isa => Str, required => 1;
 has 'name',   is => 'ro', isa => Str, required => 1;
 
 sub is_dir   { 0 }
+sub is_link  { 0 }
 sub subnodes { [] }
 
 # Arbitrary container reserved for the driver to persist/cache data associated

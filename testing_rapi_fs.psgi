@@ -22,7 +22,9 @@ my $mounts = [
   '/etc/conf.d',
   'Fooblag:Filesystem:/mnt',
   ':+Rapi::Fs::Driver::Filesystem:/opt/site/',
-  'vanstyn-home:/home/vanstyn'
+  'vanstyn-home:/home/vanstyn',
+  '/etc',
+  '/home'
 ];
 #
 # -----------------

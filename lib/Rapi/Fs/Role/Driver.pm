@@ -27,6 +27,7 @@ requires 'node_get_bytes';
 requires 'node_get_mtime';
 requires 'node_get_fh';
 requires 'node_get_mimetype';
+requires 'node_get_link_target';
 
 # Note that other node_get_* methods may be implemented, but are not required.
 

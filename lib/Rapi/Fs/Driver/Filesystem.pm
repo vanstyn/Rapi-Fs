@@ -17,6 +17,7 @@ use Encode::Guess;
 
 use Rapi::Fs::File;
 use Rapi::Fs::Dir;
+use Rapi::Fs::Symlink;
 
 has '+name', is => 'ro', isa => Str, lazy => 1, default => sub {
   my $self = shift;
@@ -88,7 +89,10 @@ sub _path_obj {
 sub _node_factory {
   my ($self, $Ent) = @_;
   
-  my $class = $Ent->is_dir ? 'Rapi::Fs::Dir' : 'Rapi::Fs::File';
+  my $class = $Ent->is_dir ? 'Rapi::Fs::Dir'
+    : -l $Ent ? 'Rapi::Fs::Symlink' 
+    : 'Rapi::Fs::File'
+  ;
   
   my $path = $Ent->relative($self->top_dir)->stringify;
   $path = '/' if ($path eq '.');
@@ -178,6 +182,9 @@ sub node_get_iconCls {
       ? 'ra-icon-folder-network' 
       : 'ra-icon-folder'
   }
+  elsif($Node->is_link) {
+    return 'ra-icon-selection'
+  }
   else {
     return 'ra-icon-document-14x14-light' if ($Node->name =~ /^\./); # starts with '.'
     my $ext = $Node->file_ext;
@@ -233,6 +240,12 @@ sub node_get_text_encoding {
   
   # Binary files seem to get seen as UTF-32, so for now we're excluding it:
   $encoding =~ /^UTF\-32/i ? undef : $encoding
+}
+
+sub node_get_link_target {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  readlink $Node->driver_stash->{path_obj}->stringify
 }
 
 1;

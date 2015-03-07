@@ -133,7 +133,7 @@ sub _apply_node_view_url {
     
   $Node->view_url( $self->suburl($enc_path) );
   
-  unless ($Node->is_dir) {
+  unless ($Node->is_dir || $Node->is_link) {
     $Node->download_url( join('',$Node->view_url,'?method=download'));
     $Node->open_url( join('',$Node->view_url,'?method=open')) if (
          $Node->bytes < $self->max_render_bytes
@@ -280,6 +280,8 @@ around 'content' => sub {
         # all work as expected:
         $self->_is_self_referred_request && !$c->is_ra_ajax_req ? 'open' : 'view';
       
+      $meth = 'view' if ($Node->is_link);
+      
       if($meth eq 'download' || $meth eq 'open') {
         my $fh = $Node->fh or die usererr "Failed to obtain filehandle!";
         
@@ -310,7 +312,7 @@ around 'content' => sub {
         $self->_apply_node_view_url($Node,$mount);
         $self->_apply_node_view_url($Node->parent,$mount);
 
-        $c->stash->{template}   = 'fileview.html';
+        $c->stash->{template}   = $Node->is_link ? 'linkview.html' : 'fileview.html';
         $c->stash->{RapiFsFile} = $Node;
 
         return $c->detach( $c->view('RapidApp::Template') );
