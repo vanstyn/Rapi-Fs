@@ -90,7 +90,7 @@ after 'BUILD' => sub {
   for(@mounts) {
     $seen{$_->name}++ and die join('',"Duplicate mount name '",$_->name,"'");
     $_->name =~ /^\s*$/ and die join('',"Bad mount name '",$_->name,"' - cannot be blank or empty");
-    $_->name =~ /^[a-z0-9\-\_\(\)]+$/i or die join('',"Bad mount name '",$_->name,"' - only alpha chars allowed");
+    $_->name =~ /^[a-z0-9\-\_\(\)\]\[]+$/i or die join('',"Bad mount name '",$_->name,"' - only alpha chars allowed");
   }
 
   $self->_mounts_ndx; #init

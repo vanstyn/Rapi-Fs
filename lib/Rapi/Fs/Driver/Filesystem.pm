@@ -22,10 +22,10 @@ use Rapi::Fs::Symlink;
 has '+name', is => 'ro', isa => Str, lazy => 1, default => sub {
   my $self = shift;
   my $args = $self->args or die "No path supplied in 'args'";
-  
+  return '[rootdir]' if ($args eq '/');
   # If no name is supplied, use the dir name, swapping out (most) non-alpha chars
   my $name = (reverse split(/\//,$args))[0];
-  $name =~ s/[^a-zA-Z0-9\-\_\(\)]/\_/g;
+  $name =~ s/[^a-zA-Z0-9\-\_\(\)\]\[]/\_/g;
   $name
 };
 
