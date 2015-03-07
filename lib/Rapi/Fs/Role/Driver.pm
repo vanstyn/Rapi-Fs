@@ -8,7 +8,7 @@ use warnings;
 use Moo::Role;
 use Types::Standard qw(:all);
 
-has 'name', is => 'ro', isa => Str, required => 1;
+has 'name', is => 'ro', isa => Str, lazy => 1, required => 1;
 has 'args', is => 'ro', isa => Maybe[Str], default => sub { undef };
 
 =head2 get_node

@@ -17,31 +17,55 @@ has 'accept_subargs',   is => 'rw', isa => Bool, default => sub {1};
 has 'mounts' => (
   is  => 'ro', required => 1,
   isa => (ArrayRef[ConsumerOf['Rapi::Fs::Role::Driver']])->plus_coercions(
-    ArrayRef[HashRef], \&_coerce_mounts
+    ArrayRef, \&_coerce_mounts
   ), 
   coerce => 1
 );
 
 sub _coerce_mounts {
-  my $mnts = $_[0];
-  if(ref $mnts && ref($mnts) eq 'ARRAY') {
-    $mnts = [ map {
-      my $mnt = $_;
-      if(ref $mnt && ref($mnt) eq 'HASH' && $mnt->{driver}) {
-        my $driver = delete $mnt->{driver};
-        if($driver =~ /^\+/) {
-          $driver =~ s/^\+//;
-        }
-        else {
-          $driver = join('::','Rapi::Fs::Driver',$driver);
-        }
-        Module::Runtime::require_module($driver);
-        $mnt = $driver->new($mnt);
-      }
-      $mnt
-    } @$mnts ];
+  ref $_[0] && ref($_[0]) eq 'ARRAY'
+    ? [ map { &_coerce_mount($_) } @{$_[0]} ]
+    : $_[0]
+}
+
+sub _coerce_mount {
+  my $mnt = $_[0] or return $_[0];
+  
+  unless(ref $mnt) {
+    my $holder = '---double-colon---';
+    $mnt =~ s/\:\:/${holder}/g;
+    my @parts = 
+      reverse
+      map { $_ =~ s/${holder}/::/g; $_ } 
+      split(/\:/,$mnt,3);
+      
+    my ($args,$driver,$name) = scalar(@parts) == 2
+      ? ($parts[0],undef,$parts[1])
+      : @parts;
+    
+    $mnt = {
+      driver => $driver || 'Filesystem',
+      args   => $args
+    };
+    
+    $mnt->{name} = $name if ($name); 
   }
-  $mnts
+  
+  if(ref $mnt) {
+    if(ref($mnt) eq 'HASH') {
+      my $driver = $mnt->{driver} ? delete $mnt->{driver} : 'Filesystem';
+      if($driver =~ /^\+/) {
+        $driver =~ s/^\+//;
+      }
+      else {
+        $driver = join('::','Rapi::Fs::Driver',$driver);
+      }
+      Module::Runtime::require_module($driver);
+      $mnt = $driver->new($mnt);
+    }
+  }
+
+  $mnt
 }
 
 has '_mounts_ndx', is => 'ro', lazy => 1, init_arg => undef, default => sub {
@@ -63,8 +87,12 @@ after 'BUILD' => sub {
   die "Must supply at least one Rapi::Fs::Driver mount in mounts!" if (@mounts == 0);
   
   my %seen = ();
-  $seen{$_->name}++ and die join(' ',"Duplicate mount name",$_->name) for (@mounts);
-  
+  for(@mounts) {
+    $seen{$_->name}++ and die join('',"Duplicate mount name '",$_->name,"'");
+    $_->name =~ /^\s*$/ and die join('',"Bad mount name '",$_->name,"' - cannot be blank or empty");
+    $_->name =~ /^[a-z0-9\-\_\(\)]+$/i or die join('',"Bad mount name '",$_->name,"' - only alpha chars allowed");
+  }
+
   $self->_mounts_ndx; #init
 };
 

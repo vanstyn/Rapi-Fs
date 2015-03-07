@@ -18,6 +18,16 @@ use Encode::Guess;
 use Rapi::Fs::File;
 use Rapi::Fs::Dir;
 
+has '+name', is => 'ro', isa => Str, lazy => 1, default => sub {
+  my $self = shift;
+  my $args = $self->args or die "No path supplied in 'args'";
+  
+  # If no name is supplied, use the dir name, swapping out (most) non-alpha chars
+  my $name = (reverse split(/\//,$args))[0];
+  $name =~ s/[^a-zA-Z0-9\-\_\(\)]/\_/g;
+  $name
+};
+
 has 'top_dir', is => 'ro', lazy => 1, default => sub {
   my $self = shift;
   

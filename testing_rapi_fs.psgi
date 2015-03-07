@@ -8,14 +8,21 @@ use Rapi::Fs;
 my $mounts = [
   {
     driver => 'Filesystem',
-    name   => 'root-home',
     args   => '/root'
   },
   {
     driver => 'Filesystem',
     name   => 'usr-lib-perl5',
     args   => '/usr/lib/perl5'
-  }
+  },
+  {
+    name => 'something',
+    args => '/usr/local/bin'
+  },
+  '/etc/conf.d',
+  'Fooblag:Filesystem:/mnt',
+  ':+Rapi::Fs::Driver::Filesystem:/opt/site/',
+  'vanstyn-home:/home/vanstyn'
 ];
 #
 # -----------------
