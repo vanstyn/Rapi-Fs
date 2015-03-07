@@ -20,7 +20,8 @@ has 'mounts', is => 'ro', isa => ArrayRef, required => 1;
 
 has 'share_dir', is => 'ro', isa => Str, lazy => 1, default => sub {
   my $self = shift;
-  try{dist_dir(ref $self)} || "$FindBin::Bin/share";
+  try{dist_dir(ref $self)} || 
+    -d "$FindBin::Bin/share" ? "$FindBin::Bin/share" : "$FindBin::Bin/../share" ;
 };
 
 sub _build_version { $VERSION }
@@ -28,6 +29,9 @@ sub _build_plugins { ['RapidApp::TabGui'] }
 
 sub _build_config {
   my $self = shift;
+  
+  my $tpl_dir = join('/',$self->share_dir,'templates');
+  -d $tpl_dir or die "template dir ($tpl_dir) not found; Rapi-Fs dist may not be installed properly.\n";
   
   return {
     'RapidApp' => {
@@ -44,7 +48,7 @@ sub _build_config {
       }]  
     },
     'Controller::RapidApp::Template' => {
-      include_paths => [ join('/',$self->share_dir,'templates') ]
+      include_paths => [ $tpl_dir ]
     },
   }
 }
