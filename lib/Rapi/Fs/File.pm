@@ -12,6 +12,8 @@ use Number::Bytes::Human qw(format_bytes parse_bytes);
 
 use RapidApp::Util qw(:all);
 
+sub is_file { 1 }
+
 sub _has_attr {
   my $attr = shift;
   has $attr, is => 'rw', isa => Maybe[Str], lazy => 1,

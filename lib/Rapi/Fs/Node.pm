@@ -16,6 +16,7 @@ has 'name',   is => 'ro', isa => Str, required => 1;
 
 sub is_dir   { 0 }
 sub is_link  { 0 }
+sub is_file  { 0 }
 sub subnodes { [] }
 
 # Arbitrary container reserved for the driver to persist/cache data associated
@@ -62,6 +63,7 @@ _has_attr $_ for qw(
   view_url
   ctime
   atime
+  hidden
 );
 
 

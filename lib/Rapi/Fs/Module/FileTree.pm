@@ -175,6 +175,12 @@ sub _fs_to_treenode {
     $Node->is_dir ? () : ( iconCls => $Node->iconCls )
   };
   
+  my @cls = ();
+  push @cls, 'node-hidden'  if ($Node->hidden);
+  push @cls, 'node-symlink' if ($Node->is_link);
+  
+  $treenode->{cls} = join(' ',@cls) if (scalar(@cls) > 0);
+  
   if ($Node->is_dir && $recurse) {
     my $children = $self->fetch_nodes($id);
     

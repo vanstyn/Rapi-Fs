@@ -1,3 +1,11 @@
+.x-tree-node .node-hidden {
+  opacity: 0.6;
+}
+
+.x-tree-node .node-symlink span {
+  color: DarkCyan ;
+}
+
 .rapi-fs-fileview table.r-simple-table tr * {
   white-space: nowrap;
 }

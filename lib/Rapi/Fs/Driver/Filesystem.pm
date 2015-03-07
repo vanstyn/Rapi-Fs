@@ -186,7 +186,7 @@ sub node_get_iconCls {
     return 'ra-icon-selection'
   }
   else {
-    return 'ra-icon-document-14x14-light' if ($Node->name =~ /^\./); # starts with '.'
+    return 'ra-icon-document-14x14-light' if ($Node->hidden);
     my $ext = $Node->file_ext;
     return $ext ? "filelink $ext" : 'ra-icon-page-white-14x14';
   }
@@ -246,6 +246,12 @@ sub node_get_link_target {
   my ($self, $path) = @_;
   my $Node = $self->get_node($path) or return undef;
   readlink $Node->driver_stash->{path_obj}->stringify
+}
+
+sub node_get_hidden {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  $Node->name =~ /^\./  # starts with '.' mean hidden
 }
 
 1;
