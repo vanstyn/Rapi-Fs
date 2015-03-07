@@ -285,7 +285,7 @@ around 'content' => sub {
     else {
       
       my $c = $self->c;
-      my $meth = $c->req->params->{method} ||
+      my $meth = $c->req->params->{method} || (
         # If there was no supplied method, the default is 'view' which renders
         # the fileview.html template page to view the file info. However, if the
         # request was "referred" internally and is *not* a request from the Ajax
@@ -293,7 +293,8 @@ around 'content' => sub {
         # directly. This logic allows html-content which is rendered in an iframe
         # to be able to properly fetch its own links, like css, js and images,
         # all work as expected:
-        $self->_is_self_referred_request && !$c->is_ra_ajax_req ? 'open' : 'view';
+        $self->_is_self_referred_request && !$c->is_ra_ajax_req ? 'open' : 'view'
+      );
       
       $meth = 'view' if ($Node->is_link);
       
