@@ -141,7 +141,7 @@ sub _apply_node_open_url {
   
   my $enc_path = $self->_apply_node_view_url($Node,$mount);
   
-  unless ($Node->is_dir || $Node->is_link) {
+  if ($Node->readable_file) {
     $Node->download_url( join('',$Node->view_url,'?method=download'));
     $Node->open_url( join('',$Node->view_url,'?method=open')) if (
          $Node->bytes < $self->max_render_bytes
@@ -184,8 +184,9 @@ sub _fs_to_treenode {
   };
   
   my @cls = ();
-  push @cls, 'node-hidden'  if ($Node->hidden);
-  push @cls, 'node-symlink' if ($Node->is_link);
+  push @cls, 'node-hidden'     if ($Node->hidden);
+  push @cls, 'node-symlink'    if ($Node->is_link);
+  push @cls, 'node-unreadable' if ($Node->is_file && ! $Node->readable_file);
   
   $treenode->{cls} = join(' ',@cls) if (scalar(@cls) > 0);
   

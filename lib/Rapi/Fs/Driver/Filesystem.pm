@@ -141,9 +141,13 @@ sub node_get_parent_path {
 sub node_get_fh {
   my ($self, $path) = @_;
   my $Node = $self->get_node($path) or return undef;
-  #$Node->driver_stash->{path_obj}->openr()
-  
   $Node->driver_stash->{path_obj}->open("<:raw")
+}
+
+sub node_get_readable_file {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  $Node->is_file && -f $Node->driver_stash->{path_obj} ? 1 : 0
 }
 
 sub node_get_bytes {
@@ -227,9 +231,11 @@ sub node_get_text_encoding {
   my ($self, $path) = @_;
   my $Node = $self->get_node($path) or return undef;
   
+  return undef unless $Node->readable_file;
+
   # Consider just the first 4K bytes for the encoding:
   my $buf;
-  my $rFh = $Node->driver_stash->{path_obj}->open("<:raw");
+  my $rFh = $Node->driver_stash->{path_obj}->open("<:raw") or return undef;
   $rFh->read($buf,4*1024);
   $rFh->close;
   

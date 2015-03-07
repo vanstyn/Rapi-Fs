@@ -64,6 +64,7 @@ _has_attr $_ for qw(
   ctime
   atime
   hidden
+  readable_file
 );
 
 

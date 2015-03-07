@@ -6,6 +6,11 @@
   color: DarkCyan ;
 }
 
+.x-tree-node .node-unreadable span {
+  color: DarkRed;
+  font-style: italic;
+}
+
 .rapi-fs-fileview table.r-simple-table tr * {
   white-space: nowrap;
 }

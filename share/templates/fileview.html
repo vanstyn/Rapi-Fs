@@ -32,12 +32,16 @@
     <tr>
       <th>File</th>
       <td colspan=4>
-        <a 
-          class="with-icon [% File.iconCls %]"
-          href="[% File.download_url %]"
-          target="_self"
-          alt="Save File"
-        >[% File.name %]</a>&nbsp;&nbsp;
+        [% IF File.download_url %]
+          <a 
+            class="with-icon [% File.iconCls %]"
+            href="[% File.download_url %]"
+            target="_self"
+            alt="Save File"
+          >[% File.name %]</a>&nbsp;&nbsp;
+        [% ELSE %]
+          <span class="with-icon [% File.iconCls %]">[% File.name %]</a>&nbsp;&nbsp;
+        [% END %]
         <span class="ra-hex-string grey">[% File.content_type %]</span>
       </td>
     </tr>
