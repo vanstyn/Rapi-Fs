@@ -12,11 +12,13 @@
   <h4>
     <span class="bigger">[% File.name %]</span>&nbsp;
     <i><span class="grey">([% File.bytes_human %])</span></i>&nbsp;
-    <a 
-          class="with-icon ra-icon-bullet-disk download"
-          href="[% File.download_url %]"
-          target="_self"
-        >Save As...</a>
+    [% IF File.download_url %]
+      <a 
+        class="with-icon ra-icon-bullet-disk download"
+        href="[% File.download_url %]"
+        target="_self"
+      >Save As...</a>
+    [% END %]
   </h4>
 
   <table class="r-simple-table">
