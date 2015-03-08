@@ -17,6 +17,7 @@ use FindBin;
 our $VERSION = '0.01';
 
 has 'mounts', is => 'ro', isa => ArrayRef, required => 1;
+has 'filetree_params', is => 'ro', isa => HashRef, default => sub {{}};
 
 has 'share_dir', is => 'ro', isa => Str, lazy => 1, default => sub {
   my $self = shift;
@@ -36,12 +37,20 @@ sub _build_config {
   my $loc_assets_dir = join('/',$self->share_dir,'assets');
   -d $loc_assets_dir or die "assets dir ($loc_assets_dir) not found; Rapi-Fs dist may not be installed properly.\n";
   
+  exists $self->filetree_params->{mounts} and die join('',
+    "'mounts' param is configured in its own attr",
+    "-- don't also suppy in 'filetree_params'"
+  );
+  
   return {
     'RapidApp' => {
       load_modules => {
         files => {
           class  => 'Rapi::Fs::Module::FileTree',
-          params => { mounts => $self->mounts }
+          params => { 
+            %{ $self->filetree_params },
+            mounts => $self->mounts 
+          }
         }
       },
       local_assets_dir => $loc_assets_dir,
