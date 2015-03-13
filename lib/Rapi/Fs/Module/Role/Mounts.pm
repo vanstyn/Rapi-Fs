@@ -148,3 +148,42 @@ sub Node_from_local_args {
 
 
 1;
+
+__END__
+
+=head1 NAME
+
+Rapi::Fs::Module::Role::Mounts - Role for modules which use "Mounts"
+
+=head1 DESCRIPTION
+
+This role is used internally by L<Rapi::Fs::Module::FileTree> and should not need to be 
+called directly.
+
+=head1 SEE ALSO
+
+=over
+
+=item * 
+
+L<Rapi::Fs>
+
+=item * 
+
+L<RapidApp>
+
+=back
+
+
+=head1 AUTHOR
+
+Henry Van Styn <vanstyn@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by IntelliTree Solutions llc.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

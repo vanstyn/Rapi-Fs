@@ -3,7 +3,7 @@ package Rapi::Fs::Node;
 use strict;
 use warnings;
 
-# ABSTRACT Base class for Dir and File objects
+# ABSTRACT: Base class for File/Dir/Symlink objects
 
 use Moo;
 use Types::Standard qw(:all);
@@ -68,7 +68,44 @@ _has_attr $_ for qw(
 );
 
 
-
-
-
 1;
+
+__END__
+
+=head1 NAME
+
+Rapi::Fs::Node - Base class for File/Dir/Symlink objects
+
+=head1 DESCRIPTION
+
+This is the base class for all node objects used by <Rapi::Fs>. This class is used internally and 
+should not need to be instantiated directly.
+
+=head1 SEE ALSO
+
+=over
+
+=item * 
+
+L<Rapi::Fs>
+
+=item * 
+
+L<RapidApp>
+
+=back
+
+
+=head1 AUTHOR
+
+Henry Van Styn <vanstyn@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by IntelliTree Solutions llc.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

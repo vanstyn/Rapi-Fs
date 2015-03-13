@@ -3,7 +3,9 @@ package Rapi::Fs::Module::FileTree;
 use strict;
 use warnings;
 
-# ABSTRACT: ExtJS tree for Rapi::Fs::Driver filesystems
+# ABSTRACT: RapidApp file tree module for Rapi::Fs
+
+use RapidApp 1.0200;
 
 use Moose;
 extends 'RapidApp::Module::NavTree';
@@ -14,7 +16,7 @@ use URI;
 
 use RapidApp::Util qw(:all);
 
-# These are from parent classes, but we're declaring fresh since they're Moose and we're Moo:
+# These are from parent classes, but we're declaring fresh for greater flexibility:
 has 'fetch_nodes_deep', is => 'ro', isa => Bool, default => sub {0};
 has 'use_contextmenu',  is => 'ro', isa => Bool, default => sub {1};
 
@@ -373,6 +375,46 @@ around 'auto_hashnav_redirect_current' => sub {
 };
 
 
-
-
 1;
+
+__END__
+
+=head1 NAME
+
+Rapi::Fs::Module::FileTree - RapidApp file tree module for Rapi::Fs
+
+=head1 DESCRIPTION
+
+This is the L<RapidApp> module which implements the ExtJS file tree/browser user-interface for 
+L<Rapi::Fs>. This class is loaded automatically by Rapi::Fs, however, it can also be used
+directly within other RapidApp-based applications to achieve advanced customizations and different
+kinds of use-cases. For an example of how to use this module directly, see the source code of
+L<Rapi::Fs> itself.
+
+=head1 SEE ALSO
+
+=over
+
+=item * 
+
+L<Rapi::Fs>
+
+=item * 
+
+L<RapidApp>
+
+=back
+
+
+=head1 AUTHOR
+
+Henry Van Styn <vanstyn@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by IntelliTree Solutions llc.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

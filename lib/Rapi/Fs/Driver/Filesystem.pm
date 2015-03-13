@@ -3,7 +3,7 @@ package Rapi::Fs::Driver::Filesystem;
 use strict;
 use warnings;
 
-# ABSTRACT: Standard filesystem driver
+# ABSTRACT: Standard filesystem driver for Rapi::Fs
 
 use Moo;
 with 'Rapi::Fs::Role::Driver';
@@ -261,3 +261,54 @@ sub node_get_hidden {
 }
 
 1;
+
+
+__END__
+
+=head1 NAME
+
+Rapi::Fs::Driver::Filesystem - Standard filesystem driver for Rapi::Fs
+
+=head1 DESCRIPTION
+
+This is the default, ordinary filesystem driver for L<Rapi::Fs>. It implements the 
+L<Rapi::Fs::Role::Driver> interface for an ordinary directory path on the local system.
+
+As the first and most basic Rapi::Fs driver, it also serves as the reference implementation for
+writing other driver classes, either by extending this class directly, or implementing a
+driver from scratch by consuming the L<Rapi::Fs::Role::Driver> role and using this class
+simply for reference.
+
+=head1 SEE ALSO
+
+=over
+
+=item * 
+
+L<Rapi::Fs>
+
+=item * 
+
+L<Rapi::Fs::Role::Driver>
+
+=item * 
+
+L<RapidApp>
+
+=back
+
+
+=head1 AUTHOR
+
+Henry Van Styn <vanstyn@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by IntelliTree Solutions llc.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+
+
