@@ -3,7 +3,9 @@ package Rapi::Fs;
 use strict;
 use warnings;
 
-use RapidApp 1.0010_08;
+# ABSTRACT: Plack-compatible, instant ExtJS file browser
+
+use RapidApp 1.0200;
 
 use Moose;
 extends 'RapidApp::Builder';
@@ -15,6 +17,8 @@ use File::ShareDir qw(dist_dir);
 use FindBin;
 
 our $VERSION = '0.01';
+
+has '+base_appname', default => sub { 'Rapi::Fs::App' };
 
 has 'mounts', is => 'ro', isa => ArrayRef, required => 1;
 has 'filetree_params', is => 'ro', isa => HashRef, default => sub {{}};
@@ -71,3 +75,177 @@ sub _build_config {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Rapi::Fs - Plack-compatible, instant ExtJS file browser
+
+=head1 SYNOPSIS
+
+ use Rapi::Fs;
+ 
+ my $app = Rapi::Fs->new({
+   mounts  => [ '/some/path', '/foo/blah' ]
+ });
+
+ # Plack/PSGI app:
+ $app->to_app
+
+Or, using L<rapi-fs.pl> utility script:
+
+ rapi-fs.pl /some/path /foo/blah
+
+=head1 DESCRIPTION
+
+This is a L<Plack>-compatible file browser application written using L<RapidApp>. It generates a 
+nice-looking dynamic web interface to browse and view arbitrary files and directories for the 
+configured "mounts" using a standard, split-panel tree layout.
+
+Internally, the RapidApp module class L<Rapi::Fs::Module::FileTree> does the heavy lifting, and that
+module can be configured and used directly within an existing RapidApp.
+
+The convenience utility script L<rapi-fs.pl> is also available, which is a simple wrapper around this
+module, to be able to fire up a fully working and self-contained app on-the-fly (including launching a
+built-in webserver) from the command-line.
+
+=head1 CONFIGURATION
+
+C<Rapi::Fs> extends L<RapidApp::Builder> and supports all of its options, as well as the following
+params specific to this module:
+
+=head2 mounts
+
+List of directory "mount" points to use/show in the application. This is the only required parameter
+and supports a flexible syntax. Mounts can be supplied as simple directory string paths, HashRef configs,
+or "driver" objects (consuming the L<Rapi::Fs::Role::Driver> role). The default driver class which 
+ships with the C<Rapi::Fs> package is L<Rapi::Fs::Driver::Filesystem>.
+
+The following mount specifications are all equivalent:
+
+ $app = Rapi::Fs->new({
+   mounts  => [ '/some/path' ]
+ });
+
+ $app = Rapi::Fs->new({
+   mounts  => [{
+     driver => 'Filesystem',
+     name   => 'path',
+     args   => '/some/path'
+   }]
+ });
+
+ $app = Rapi::Fs->new({
+   mounts  => [ 
+     Rapi::Fs::Driver::Filesystem->new({
+       name   => 'path',
+       args   => '/some/path'
+     })
+   ]
+ });
+
+When using the HashRef syntax, the C<'driver'> param is a class name relative to the 
+C<Rapi::Fs::Driver::*> namespace. To supply a full class name, prefix with C<'+'>, for instance:
+
+ $app = Rapi::Fs->new({
+   mounts  => [{
+     driver => '+My::Fs::Driver',
+     name   => 'Foobar',
+     args   => 'something understood by My::Fs::Driver'
+   }]
+ });
+
+Different forms can also be mix/matched:
+
+ $app = Rapi::Fs->new({
+   mounts  => [
+     {
+       driver => '+My::Fs::Driver',
+       name   => 'Foobar',
+       args   => 'something understood by My::Fs::Driver'
+     },
+     '/path/to/something',
+     {
+       name  => 'perl5-lib',
+       args  => '/usr/lib/perl5'
+     },
+     Some::Other::Driver->new({
+       name   => 'larry',
+       args   => 'bla',
+       foo    => 'bar'
+     })
+   ]
+ });
+
+L<Rapi::Fs::Driver::Filesystem> is the only driver which has been implemented so far, but this module
+was written with the idea of implementing other drivers in mind, both as possible additional 
+core-modules as well as user-defined drivers. See L<Rapi::Fs::Role::Driver> for more info on the 
+driver API.
+
+=head1 METHODS
+
+=head2 to_app
+
+PSGI C<$app> CodeRef. Derives from L<Plack::Component>
+
+=head1 TODO
+
+Add write support (move/rename/copy/delete/edit)
+
+Planned additional drivers:
+
+=over
+
+=item * 
+
+SSH/SFTP
+
+=item * 
+
+IMAP
+
+=item * 
+
+JSON/YAML files (i.e. browse data structure)
+
+=back
+
+=head1 SEE ALSO
+
+=over
+
+=item * 
+
+L<rapi-fs.pl>
+
+=item * 
+
+L<RapidApp>
+
+=item * 
+
+L<RapidApp::Builder>
+
+=item * 
+
+L<Plack>
+
+=back
+
+
+=head1 AUTHOR
+
+Henry Van Styn <vanstyn@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by IntelliTree Solutions llc.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+
+
+

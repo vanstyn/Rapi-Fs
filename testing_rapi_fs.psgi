@@ -31,7 +31,7 @@ my $mounts = [
 
 Rapi::Fs->new({
   debug   => 1,
-  appname => 'Testing::Rapi::Fs',
+  #appname => 'Testing::Rapi::Fs',
   mounts  => $mounts
 })->to_app
 
