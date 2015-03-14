@@ -1,6 +1,12 @@
 Revision history for Rapi::Fs
 
-1.00 2015-03-14
+1.001 2015-03-14
+    - Add screenshot + demo link to POD/Readme
+    - Fix 5.16+ bug in content fetch
+    - More test coverage
+    - rapi-fs.pl now shows loading banner at start up
+
+1.000 2015-03-14
     - First CPAN release
 
 0.01 2015-02-21 16:46:45

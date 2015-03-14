@@ -16,7 +16,7 @@ use RapidApp::Util ':all';
 use File::ShareDir qw(dist_dir);
 use FindBin;
 
-our $VERSION = '1.000';
+our $VERSION = '1.001';
 
 has '+base_appname', default => sub { 'Rapi::Fs::App' };
 
