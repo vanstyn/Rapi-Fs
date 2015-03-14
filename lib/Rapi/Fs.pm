@@ -104,7 +104,18 @@ Or, using L<rapi-fs.pl> utility script:
 
 This is a L<Plack>-compatible file browser application written using L<RapidApp>. It generates a 
 nice-looking dynamic web interface to browse and view arbitrary files and directories for the 
-configured "mounts" using a standard, split-panel tree layout.
+configured "mounts" using a standard, split-panel tree layout:
+
+=begin HTML
+
+  <p><img 
+     src="https://raw.githubusercontent.com/vanstyn/Rapi-Fs/master/share/screenshot.png" 
+     width="600"
+     alt="Rapi::Fs screenshot"
+  /></p>
+
+=end HTML
+
 
 Internally, the RapidApp module class L<Rapi::Fs::Module::FileTree> does the heavy lifting, and that
 module can be configured and used directly within an existing RapidApp.
