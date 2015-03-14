@@ -33,6 +33,7 @@ configured "mounts" using a standard, split-panel tree layout:
 
 =end HTML
 
+For a live demo, see: L<rapi.io/fs|http://rapi.io/fs>
 
 Internally, the RapidApp module class L<Rapi::Fs::Module::FileTree> does the heavy lifting, and that
 module can be configured and used directly within an existing RapidApp.
@@ -161,6 +162,10 @@ L<RapidApp::Builder>
 =item * 
 
 L<Plack>
+
+=item *
+
+L<http://rapi.io/fs>
 
 =back
 
