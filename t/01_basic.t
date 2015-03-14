@@ -7,6 +7,8 @@ use Test::More;
 
 BEGIN {
   use FindBin '$Bin';
+  $ENV{RAPIFS_SHARE_DIR} = "$Bin/../share";
+  
   use Rapi::Fs;
   
   Rapi::Fs->new({

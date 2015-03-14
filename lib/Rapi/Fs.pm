@@ -16,7 +16,7 @@ use RapidApp::Util ':all';
 use File::ShareDir qw(dist_dir);
 use FindBin;
 
-our $VERSION = '0.01';
+our $VERSION = '0.99';
 
 has '+base_appname', default => sub { 'Rapi::Fs::App' };
 
@@ -25,8 +25,11 @@ has 'filetree_params', is => 'ro', isa => HashRef, default => sub {{}};
 
 has 'share_dir', is => 'ro', isa => Str, lazy => 1, default => sub {
   my $self = shift;
-  try{dist_dir(ref $self)} || 
-    -d "$FindBin::Bin/share" ? "$FindBin::Bin/share" : "$FindBin::Bin/../share" ;
+  $ENV{RAPIFS_SHARE_DIR} || (
+    try{dist_dir('Rapi-Fs')} || (
+      -d "$FindBin::Bin/share" ? "$FindBin::Bin/share" : "$FindBin::Bin/../share" 
+    )
+  )
 };
 
 sub _build_version { $VERSION }

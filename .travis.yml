@@ -1,0 +1,22 @@
+language: perl
+perl:
+   - "5.20"
+   - "5.18"
+   - "5.16"
+   - "5.14"
+   - "5.12"
+   - "5.10"
+
+install:
+   - cpanm --quiet --notest --skip-satisfied Dist::Zilla
+   - cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Coveralls
+   # No tests for RapidApp and its deps for the sake of speed:
+   - cpanm --quiet --notest --skip-satisfied RapidApp
+   - "dzil authordeps | cpanm --quiet --notest --skip-satisfied"
+   - "dzil listdeps   | cpanm --quiet --skip-satisfied"
+
+script:
+   - HARNESS_PERL_SWITCHES=-MDevel::Cover=-coverage,statement,branch,condition,path,subroutine dzil test --author --release --keep
+
+after_success:
+  - cd .build/latest && cover && cover -report coveralls
