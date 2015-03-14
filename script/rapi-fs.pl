@@ -17,6 +17,7 @@ END { &_cleanup_exit };
 $SIG{$_} = \&_cleanup_exit for qw(INT KILL TERM HUP QUIT ABRT);
 
 my $help      = 0;
+my $debug     = 0;
 my $name      = 'Rapi::Fs::Web';
 my $port      = 3500;
 my $includes  = [];
@@ -26,6 +27,7 @@ my $includes  = [];
 
 GetOptions(
   'help+'      => \$help,
+  'debug+'     => \$debug,
   'port=i'     => \$port,
   'I=s@'       => $includes,
 );
@@ -44,12 +46,10 @@ if (@$includes) {
   my $cnf = {
     base_appname  => $name,
     mounts        => \@ARGV,
-    debug         => 1
+    debug         => $debug
   };
   
   my $App = Rapi::Fs->new( $cnf );
-
-  print "\n\n";
 
   my $psgi = $App->to_app;
 
@@ -74,6 +74,7 @@ rapi-fs.pl - Instant file browser webapp
 
  Options:
    --help   Display this help screen and exit
+   --debug  Enable debug mode
    --port   Local TCP port to use for the test server (defaults to 3500)
    
    -I  Specifies Perl library include paths, like "perl"'s -I option. You
