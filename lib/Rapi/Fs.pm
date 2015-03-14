@@ -5,7 +5,7 @@ use warnings;
 
 # ABSTRACT: Plack-compatible, instant ExtJS file browser
 
-use RapidApp 1.0200;
+use RapidApp 1.0201;
 
 use Moose;
 extends 'RapidApp::Builder';
@@ -16,7 +16,7 @@ use RapidApp::Util ':all';
 use File::ShareDir qw(dist_dir);
 use FindBin;
 
-our $VERSION = '0.99';
+our $VERSION = '1.000';
 
 has '+base_appname', default => sub { 'Rapi::Fs::App' };
 

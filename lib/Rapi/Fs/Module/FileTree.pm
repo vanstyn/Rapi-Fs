@@ -5,7 +5,7 @@ use warnings;
 
 # ABSTRACT: RapidApp file tree module for Rapi::Fs
 
-use RapidApp 1.0200;
+use RapidApp 1.0201;
 
 use Moose;
 extends 'RapidApp::Module::NavTree';
