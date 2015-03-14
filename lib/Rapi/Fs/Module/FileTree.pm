@@ -307,7 +307,7 @@ around 'content' => sub {
         
         if($meth eq 'open') {
           my $ct = $self->_get_render_content_type( $Node );
-          $ct ? $h->content_type( $ct ) : $meth = 'download'
+          $ct ? $h->content_type( $ct ) : ($meth = 'download')
         }
         
         if($meth eq 'download') {
