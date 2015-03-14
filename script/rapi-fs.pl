@@ -9,6 +9,7 @@ use Plack::Runner;
 
 use RapidApp::Util qw(:all);
 
+$| = 1;
 
 sub _cleanup_exit { 
   exit 
@@ -35,6 +36,7 @@ GetOptions(
 
 pod2usage(1) if ($help || scalar(@ARGV) == 0);
 
+print STDERR "rapi-fs.pl (Rapi::Fs v$Rapi::Fs::VERSION) -- Loading app...\n";
 
 if (@$includes) {
   require lib;
