@@ -15,12 +15,14 @@ use Types::Standard qw(:all);
 use RapidApp::Util ':all';
 use File::ShareDir qw(dist_dir);
 use FindBin;
+use Module::Runtime;
 
 our $VERSION = '1.001';
 
 has '+base_appname', default => sub { 'Rapi::Fs::App' };
 
 has 'mounts', is => 'ro', isa => ArrayRef, required => 1;
+has 'filetree_class', is => 'ro', isa => Str, default => sub {'Rapi::Fs::Module::FileTree'};
 has 'filetree_params', is => 'ro', isa => HashRef, default => sub {{}};
 
 has 'share_dir', is => 'ro', isa => Str, lazy => 1, default => sub {
@@ -38,6 +40,8 @@ sub _build_plugins { ['RapidApp::TabGui'] }
 sub _build_config {
   my $self = shift;
   
+  Module::Runtime::require_module( $self->filetree_class );
+  
   my $tpl_dir = join('/',$self->share_dir,'templates');
   -d $tpl_dir or die "template dir ($tpl_dir) not found; Rapi-Fs dist may not be installed properly.\n";
   
@@ -53,7 +57,7 @@ sub _build_config {
     'RapidApp' => {
       load_modules => {
         files => {
-          class  => 'Rapi::Fs::Module::FileTree',
+          class  => $self->filetree_class,
           params => { 
             %{ $self->filetree_params },
             mounts => $self->mounts 
@@ -197,6 +201,14 @@ L<Rapi::Fs::Driver::Filesystem> is the only driver which has been implemented so
 was written with the idea of implementing other drivers in mind, both as possible additional 
 core-modules as well as user-defined drivers. See L<Rapi::Fs::Role::Driver> for more info on the 
 driver API.
+
+=head2 filetree_class
+
+Defaults to L<Rapi::Fs::Module::FileTree>.
+
+=head2 filetree_params
+
+Optional extra params to supply to the C<filetree_class> constructor.
 
 =head1 METHODS
 
