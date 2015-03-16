@@ -17,7 +17,7 @@ use File::ShareDir qw(dist_dir);
 use FindBin;
 use Module::Runtime;
 
-our $VERSION = 1.001_01;
+our $VERSION = 1.001_02;
 
 has '+base_appname', default => sub { 'Rapi::Fs::App' };
 

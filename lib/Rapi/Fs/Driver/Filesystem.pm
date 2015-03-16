@@ -279,6 +279,7 @@ sub node_get_code_language {
     when([qw/py/])            { return 'python' }
     when([qw/rb/])            { return 'ruby' }
     when([qw/ini/])           { return 'ini' }
+    when([qw/md markdown/])   { return 'markdown' }
   }
   
   return undef
