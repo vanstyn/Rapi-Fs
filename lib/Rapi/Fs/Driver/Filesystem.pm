@@ -271,10 +271,10 @@ sub node_get_code_language {
   my $ext = $Node->file_ext or return undef;
 
   for($ext) {
-    when([qw/pl pm pod t/])   { return 'perl' }
+    when([qw/pl pm pod t psgi/])   { return 'perl' }
     when([qw/css/])           { return 'css' }
     when([qw/js json/])       { return 'javascript' }
-    when([qw/htm html/])      { return 'html' }
+    #when([qw/htm html/])      { return 'html' }
     when([qw/c cpp h/])       { return 'clike' }
     when([qw/py/])            { return 'python' }
     when([qw/rb/])            { return 'ruby' }
