@@ -81,7 +81,7 @@
       <iframe 
         class="ux-mif" 
         frameborder="0"
-        src="[% File.open_url %]"
+        src="[% File.source_url || File.open_url %]"
       ></iframe>
     [% END %]
     </div>

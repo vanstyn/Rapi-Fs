@@ -80,6 +80,7 @@ has 'file_ext', is => 'ro', lazy => 1, default => sub {
 _has_attr $_ for qw(
   download_url
   open_url
+  source_url
   is_text
   text_encoding
   code_language

@@ -148,6 +148,10 @@ sub _apply_node_open_url {
     $Node->open_url( join('',$Node->view_url,'?method=open')) if (
          $Node->bytes < $self->max_render_bytes
       && $self->_get_render_content_type( $Node )
+    );
+    $Node->source_url( join('',$Node->view_url,'?method=source')) if (
+         $Node->bytes < $self->max_render_bytes
+      && $Node->code_language
     )
   }
   
@@ -335,6 +339,12 @@ around 'content' => sub {
 
         return $c->detach( $c->view('RapidApp::Template') );
       }
+      elsif($meth eq 'source') {
+        $c->stash->{template}   = 'sourceview.html';
+        $c->stash->{RapiFsFile} = $Node;
+
+        return $c->detach( $c->view('RapidApp::Template') );
+      }
       else {
         die usererr "No such method '$meth'";
       
@@ -371,6 +381,7 @@ around 'auto_hashnav_redirect_current' => sub {
     # Or in the case of a supplied known method param
     || $uri_query eq 'method=open'
     || $uri_query eq 'method=download'
+    || $uri_query eq 'method=source'
   )
 };
 
