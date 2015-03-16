@@ -127,21 +127,21 @@ sub _get_render_content_type {
 }
 
 sub _apply_node_view_url {
-  my ($self, $Node, $mount) = @_;
+  my ($self, $Node, $mount, $for_ext) = @_;
   
   my $enc_path = $Node->path && $Node->path ne '/'
     ? $self->b64_encode(join('/',$mount,$Node->path))
     : $self->b64_encode($mount);
     
-  $Node->view_url( $self->local_url($enc_path) );
+  $Node->view_url( $for_ext ? $self->local_url($enc_path) : $self->suburl($enc_path) );
   
   $enc_path
 }
 
 sub _apply_node_open_url {
-  my ($self, $Node, $mount) = @_;
+  my ($self, $Node, $mount, $for_ext) = @_;
   
-  my $enc_path = $self->_apply_node_view_url($Node,$mount);
+  my $enc_path = $self->_apply_node_view_url($Node,$mount,$for_ext);
   
   if ($Node->readable_file) {
     $Node->download_url( join('',$Node->view_url,'?method=download'));
@@ -327,8 +327,8 @@ around 'content' => sub {
       }
       elsif($meth eq 'view') {
       
-        $self->_apply_node_open_url($Node,$mount);
-        $self->_apply_node_open_url($Node->parent,$mount);
+        $self->_apply_node_open_url($Node,$mount,1);
+        $self->_apply_node_open_url($Node->parent,$mount,1);
 
         $c->stash->{template}   = 'fileview.html';
         $c->stash->{RapiFsFile} = $Node;
