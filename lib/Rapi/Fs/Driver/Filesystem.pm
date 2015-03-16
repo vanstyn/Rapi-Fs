@@ -278,6 +278,7 @@ sub node_get_code_language {
     when([qw/c cpp h/])       { return 'clike' }
     when([qw/py/])            { return 'python' }
     when([qw/rb/])            { return 'ruby' }
+    when([qw/ini/])           { return 'ini' }
   }
   
   return undef
