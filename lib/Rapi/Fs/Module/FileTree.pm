@@ -133,7 +133,7 @@ sub _apply_node_view_url {
     ? $self->b64_encode(join('/',$mount,$Node->path))
     : $self->b64_encode($mount);
     
-  $Node->view_url( $self->suburl($enc_path) );
+  $Node->view_url( $self->local_url($enc_path) );
   
   $enc_path
 }
