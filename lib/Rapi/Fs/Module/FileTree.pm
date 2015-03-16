@@ -332,7 +332,7 @@ around 'content' => sub {
       elsif($meth eq 'view') {
       
         $self->_apply_node_open_url($Node,$mount,1);
-        $self->_apply_node_open_url($Node->parent,$mount,1);
+        $self->_apply_node_open_url($Node->parent,$mount);
 
         $c->stash->{template}   = 'fileview.html';
         $c->stash->{RapiFsFile} = $Node;
