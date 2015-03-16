@@ -5,6 +5,8 @@ use warnings;
 
 # ABSTRACT: Standard filesystem driver for Rapi::Fs
 
+use feature 'switch';
+
 use Moo;
 with 'Rapi::Fs::Role::Driver';
 use Types::Standard qw(:all);
@@ -258,6 +260,38 @@ sub node_get_hidden {
   my ($self, $path) = @_;
   my $Node = $self->get_node($path) or return undef;
   $Node->name =~ /^\./  # starts with '.' mean hidden
+}
+
+
+sub node_get_code_language {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  
+  return undef unless $Node->is_text;
+  my $ext = $Node->file_ext or return undef;
+
+  for($ext) {
+    when([qw/pl pm pod t/])   { return 'perl' }
+    when([qw/css/])           { return 'css' }
+    when([qw/js json/])       { return 'javascript' }
+    when([qw/htm html/])      { return 'html' }
+    when([qw/c cpp h/])       { return 'clike' }
+    when([qw/py/])            { return 'python' }
+    when([qw/rb/])            { return 'ruby' }
+  }
+  
+  return undef
+}
+
+sub node_get_slurp {
+  my ($self, $path) = @_;
+  my $Node = $self->get_node($path) or return undef;
+  
+  return undef unless $Node->readable_file;
+  
+  return undef if ($Node->bytes > 4*1024*1024);
+  
+  $Node->driver_stash->{path_obj}->slurp
 }
 
 1;

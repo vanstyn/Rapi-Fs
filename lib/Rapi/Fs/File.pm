@@ -82,6 +82,8 @@ _has_attr $_ for qw(
   open_url
   is_text
   text_encoding
+  code_language
+  slurp
 );
 
 
