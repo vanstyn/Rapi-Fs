@@ -1,15 +1,14 @@
 // This custom JS is just here as an example of how to extend RapidApp
 // module functionality in general (one of many possible approaches)
 
-Ext.ns('Ext.ux.RapiFs');
+Ext.ns('Ext.ux.RapiFs.Plugin');
 
+Ext.ux.RapiFs.Plugin.DblclickDownload = Ext.extend(Ext.util.Observable,{
 
-Ext.ux.RapiFs.FileTree = Ext.extend(Ext.ux.RapidApp.AppTree,{
-
-  initComponent: function() {
+  init: function(tree) {
   
-    if(this.dblclick_download) {
-      this.on('dblclick',function(node,e) {
+    if(tree.dblclick_download) {
+      tree.on('dblclick',function(node,e) {
         try{
           var path = node.attributes.loadContentCnf.autoLoad.url;
           if(path && node.leaf) {
@@ -21,11 +20,10 @@ Ext.ux.RapiFs.FileTree = Ext.extend(Ext.ux.RapidApp.AppTree,{
             document.location.href = url;
           }
         }catch(e){};
-      },this);
+      },tree);
     }
   
-    Ext.ux.RapidApp.AppTree.superclass.initComponent.call(this);
   }
 
 });
-Ext.reg('rapifs-filetree',Ext.ux.RapiFs.FileTree);
+Ext.preg('rapifs-dblclick-download',Ext.ux.RapiFs.Plugin.DblclickDownload);

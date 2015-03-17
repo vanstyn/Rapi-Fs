@@ -32,11 +32,13 @@ sub BUILD {
   
   $self->apply_extconfig(
     tabTitle   => 'File Tree',
-    tabIconCls => 'ra-icon-folders',
-    xtype      => 'rapifs-filetree'
+    tabIconCls => 'ra-icon-folders'
   );
   
   $self->add_plugin('apptree-serverfilter');
+  
+  # Example feature:
+  $self->add_plugin('rapifs-dblclick-download');
   
 }
 
