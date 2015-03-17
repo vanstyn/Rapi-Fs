@@ -306,6 +306,22 @@ __END__
 
 Rapi::Fs::Driver::Filesystem - Standard filesystem driver for Rapi::Fs
 
+=head1 SYNOPSIS
+
+ use Rapi::Fs;
+ 
+ my $app = Rapi::Fs->new({
+   mounts  => [{
+     driver => 'Filesystem',
+     name   => 'Some-Path',
+     args   => '/some/path'
+   }]
+ });
+
+ # Plack/PSGI app:
+ $app->to_app
+
+
 =head1 DESCRIPTION
 
 This is the default, ordinary filesystem driver for L<Rapi::Fs>. It implements the 

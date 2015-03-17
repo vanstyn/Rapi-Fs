@@ -42,6 +42,16 @@ __END__
 
 Rapi::Fs::Role::Driver - Role for Rapi::Fs driver classes
 
+=head1 SYNOPSIS
+
+  package My::Driver;
+  
+  use Moo;
+  with 'Rapi::Fs::Role::Driver';
+  
+  ...
+
+
 =head1 DESCRIPTION
 
 This is the role which must be consumed for a class to become a valid L<Rapi::Fs> driver. Most of
