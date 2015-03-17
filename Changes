@@ -1,5 +1,10 @@
 Revision history for Rapi::Fs
 
+1.100 2015-03-17
+    - Add Syntax highlighting for viewing code files (prism)
+    - Added example feature 'dblclick_download'
+    - misc fixes
+
 1.001 2015-03-14
     - Add screenshot + demo link to POD/Readme
     - Fix 5.16+ bug in content fetch
