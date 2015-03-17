@@ -32,7 +32,8 @@ sub BUILD {
   
   $self->apply_extconfig(
     tabTitle   => 'File Tree',
-    tabIconCls => 'ra-icon-folders'
+    tabIconCls => 'ra-icon-folders',
+    xtype      => 'rapifs-filetree'
   );
   
   $self->add_plugin('apptree-serverfilter');
@@ -263,6 +264,14 @@ sub _folder_up_treenode {
 
 around 'content' => sub {
   my ($orig,$self,@args) = @_;
+  
+  # This extra feature has been added for example purposes, see rapifs.js for
+  # what this mode activates and does
+  if(my $special = $self->c->req->params->{special}) {
+    $self->apply_extconfig(  
+      dblclick_download => 1
+    ) if($special eq 'dblclick_download');
+  }
   
   if (my $Node = $self->Node_from_local_args) {
   
