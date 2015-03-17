@@ -115,6 +115,14 @@ was written with the idea of implementing other drivers in mind, both as possibl
 core-modules as well as user-defined drivers. See L<Rapi::Fs::Role::Driver> for more info on the 
 driver API.
 
+=head2 filetree_class
+
+Defaults to L<Rapi::Fs::Module::FileTree>.
+
+=head2 filetree_params
+
+Optional extra params to supply to the C<filetree_class> constructor.
+
 =head1 METHODS
 
 =head2 to_app
