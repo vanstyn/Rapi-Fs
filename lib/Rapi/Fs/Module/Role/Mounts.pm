@@ -132,6 +132,14 @@ sub Node_from_local_args {
   my $self = shift;
   
   my @largs = $self->local_args;
+  
+  unless (@largs > 0) {
+    # Allow optional override using query-string param, useful when using an embedded call
+    # for an iframe which is not navable
+    my $qs_path = $self->c->req->params->{path} or return undef;
+    @largs = split(/\//,$qs_path);
+  }
+  
   return undef unless (@largs > 0);
   
   my $mount = shift @largs;
