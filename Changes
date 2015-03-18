@@ -1,5 +1,10 @@
 Revision history for Rapi::Fs
 
+1.101 2015-03-18
+    - Enable source view on html files
+    - encode_entities for source view
+    - Don't keep nodes "selected" after click
+
 1.100 2015-03-17
     - Add Syntax highlighting for viewing code files (prism)
     - Added example feature 'dblclick_download'
