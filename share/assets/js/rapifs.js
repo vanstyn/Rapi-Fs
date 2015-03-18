@@ -25,7 +25,8 @@ Ext.ux.RapiFs.Plugin.DblclickDownload = Ext.extend(Ext.util.Observable,{
     else {
       tree.on('click',function(node,e) {
         // Unless we're in dblclick_download mode, unselect after click
-        this.getSelectionModel().clearSelections();
+        var sm = this.getSelectionModel();
+        sm.select(this.root);
       },tree,{ delay: 200 });
     }
   }
