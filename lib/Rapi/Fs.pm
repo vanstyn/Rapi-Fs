@@ -218,9 +218,21 @@ PSGI C<$app> CodeRef. Derives from L<Plack::Component>
 
 =head1 TODO
 
+=over
+
+=item * 
+
 Add write support (move/rename/copy/delete/edit)
 
-Planned additional drivers:
+=item * 
+
+Add "Mount" as a 4th Node type, to allow nesting other kinds of drivers within
+a structure.
+
+=back
+
+
+=head2 Planned additional drivers
 
 =over
 
@@ -235,6 +247,14 @@ IMAP
 =item * 
 
 JSON/YAML files (i.e. browse data structure)
+
+=item * 
+
+Zip/archive
+
+=item * 
+
+Multipart/MIME
 
 =back
 
