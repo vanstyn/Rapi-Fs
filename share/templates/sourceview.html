@@ -3,6 +3,7 @@
 <head>
   [%- SET 
     File = c.stash.RapiFsFile 
+    code = c.stash.code 
     pfx  = c.mount_url
   -%]
   
@@ -21,7 +22,7 @@
 
 <pre class="line-numbers">
 <code class="language-[% File.code_language %] line-numbers">
-[%- File.slurp -%]
+[%- code -%]
 </code>
 </pre>
 

@@ -13,6 +13,7 @@ with 'Rapi::Fs::Module::Role::Mounts';
 
 use Types::Standard qw(:all);
 use URI;
+use HTML::Entities;
 
 use RapidApp::Util qw(:all);
 
@@ -120,6 +121,7 @@ sub _get_render_content_type {
   return $ct if (
         $ct =~ /^image\//
     ||  $ct =~ /^video\//
+    ||  $ct =~ /^audio\//
     ||  $ct =~ /^text\/html/
     ||  $ct =~ /^application\/pdf/
   );
@@ -353,6 +355,7 @@ around 'content' => sub {
       elsif($meth eq 'source') {
         $c->stash->{template}   = 'sourceview.html';
         $c->stash->{RapiFsFile} = $Node;
+        $c->stash->{code}       = encode_entities( $Node->slurp );
 
         return $c->detach( $c->view('RapidApp::Template') );
       }

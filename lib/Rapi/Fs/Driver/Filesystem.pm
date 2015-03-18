@@ -274,13 +274,20 @@ sub node_get_code_language {
     when([qw/pl pm pod t psgi/])   { return 'perl' }
     when([qw/css/])           { return 'css' }
     when([qw/js json/])       { return 'javascript' }
-    #when([qw/htm html/])      { return 'html' }
     when([qw/c cpp h/])       { return 'clike' }
     when([qw/py/])            { return 'python' }
     when([qw/rb/])            { return 'ruby' }
     when([qw/ini/])           { return 'ini' }
     when([qw/md markdown/])   { return 'markdown' }
     when([qw/sh bash/])       { return 'bash' }
+    
+    # TODO: Enabaling html here turns off inline viewing of HTML, which we're
+    # capable of doing (including following relative links/embeds). But showing
+    # the syntax highlighted code is still probably the more useful behavior.
+    # Later on, we should add support for rendering both or giving the user a
+    # choice (note this wouldn't be hard to do, i just haven't gotten around to 
+    # it yet)
+    when([qw/htm html/])      { return 'markup' }
   }
   
   return undef
