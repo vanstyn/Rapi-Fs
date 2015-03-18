@@ -22,7 +22,12 @@ Ext.ux.RapiFs.Plugin.DblclickDownload = Ext.extend(Ext.util.Observable,{
         }catch(e){};
       },tree);
     }
-  
+    else {
+      tree.on('click',function(node,e) {
+        // Unless we're in dblclick_download mode, unselect after click
+        this.getSelectionModel().clearSelections();
+      },tree,{ delay: 200 });
+    }
   }
 
 });
