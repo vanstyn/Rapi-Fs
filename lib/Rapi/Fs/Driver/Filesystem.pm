@@ -271,6 +271,8 @@ sub node_get_code_language {
   my $ext = $Node->file_ext or return undef;
 
   for($ext) {
+    no warnings 'experimental';
+
     when([qw/pl pm pod t psgi/])   { return 'perl' }
     when([qw/css/])           { return 'css' }
     when([qw/js json/])       { return 'javascript' }
