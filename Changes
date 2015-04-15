@@ -1,5 +1,9 @@
 Revision history for Rapi::Fs
 
+1.102 2015-04-15
+    - Squash 'when' experimental warnings
+    - Require RapidApp 1.0204
+
 1.101 2015-03-18
     - Enable source view on html files
     - encode_entities for source view
