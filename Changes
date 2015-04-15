@@ -1,5 +1,9 @@
 Revision history for Rapi::Fs
 
+1.103 2015-04-15
+    - Fix broken last release (1.102) with conditional call of 
+      no warnings 'experimental' since older perls don't know what it is
+
 1.102 2015-04-15
     - Squash 'when' experimental warnings
     - Require RapidApp 1.0204
