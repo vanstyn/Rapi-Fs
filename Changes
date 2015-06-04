@@ -1,5 +1,9 @@
 Revision history for Rapi::Fs
 
+1.104 2015-06-03
+    - Remove margin/pagging styles from sourceview template that
+      caused ugly boxes, especially in iframes that need to scroll
+
 1.103 2015-04-15
     - Fix broken last release (1.102) with conditional call of 
       no warnings 'experimental' since older perls don't know what it is
