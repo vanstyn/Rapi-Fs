@@ -124,7 +124,7 @@ after 'BUILD' => sub {
 
 use URI::Escape;
 
-sub b64_encode { $_[1] }
+sub b64_encode { uri_escape($_[1], '#&?%') }
 sub b64_decode { uri_unescape($_[1]) }
 
 

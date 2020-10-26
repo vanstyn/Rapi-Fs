@@ -135,7 +135,7 @@ sub _apply_node_view_url {
   my ($self, $Node, $mount, $for_ext) = @_;
   
   my $enc_path = $Node->path && $Node->path ne '/'
-    ? $self->b64_encode(join('/',$mount,$Node->path))
+    ? join('/',$self->b64_encode($mount),$self->b64_encode($Node->path))
     : $self->b64_encode($mount);
     
   $Node->view_url( $for_ext ? $self->local_url($enc_path) : $self->suburl($enc_path) );
