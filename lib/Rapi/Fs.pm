@@ -5,7 +5,7 @@ use warnings;
 
 # ABSTRACT: Plack-compatible, instant ExtJS file browser
 
-use RapidApp 1.04;
+use RapidApp 1.3302;
 
 use Moose;
 extends 'RapidApp::Builder';
